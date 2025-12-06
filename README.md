@@ -2,6 +2,8 @@
 
 Shadowplay-like overlay for [GPU Screen Recorder](https://git.dec05eba.com/gpu-screen-recorder/) by dec05eba.
 
+<img src="/assets/thumbnail.png">
+
 Made in C++/QML.
 
 Not licensed yet, but I guess that it needs to be GPL v3, as the original project is.
@@ -36,6 +38,3 @@ export PATH=$(pwd)/overlay
 cd build/overlay
 ./gsr-qt-overlay
 ```
-
-
-<img src="/assets/thumbnail.png">
