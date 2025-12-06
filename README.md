@@ -15,7 +15,7 @@ Not licensed yet, but I guess that it needs to be GPL v3, as the original projec
 
 
 ## How to build
-You need Qt6, X11, CMake, KDE CMake extras and KDE Frameworks installed on your system.
+You need Qt6, LayerShellQt, X11, CMake, KDE CMake extras and KDE Frameworks installed on your system.
 
 
 ```bash
