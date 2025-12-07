@@ -1,7 +1,9 @@
+import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import QtQuick.Dialogs
 import "./components" as Components
 import org.kde.kirigami as Kirigami
 import org.kde.layershell 1.0 as LayerShell
@@ -26,6 +28,21 @@ ApplicationWindow {
         anchors.fill: parent
         color: '#83000000'
         opacity: 0
+    }
+
+    Shortcut {
+        sequence: "Esc"
+        onActivated: {
+            var anySubmenuVisible = mainWindow.replaySubmenuVisible || mainWindow.recordSubmenuVisible || mainWindow.streamSubmenuVisible;
+
+            if (anySubmenuVisible) {
+                mainWindow.replaySubmenuVisible = false
+                mainWindow.recordSubmenuVisible = false
+                mainWindow.streamSubmenuVisible = false
+            } else {
+                 shutdownNotifier.intendedClose();
+            }
+        }
     }
 
     SystemPalette { id: activeSystemPalette; colorGroup: SystemPalette.Active }

@@ -4,6 +4,8 @@ import QtQuick.Window
 import "." as Components
 
 ColumnLayout {
+    id: smallSideButtonsColumn
+
     implicitHeight: 220
     Item {
         Layout.fillHeight: true
@@ -22,6 +24,12 @@ ColumnLayout {
             imageSize: 30
             buttonImageSource: '../../images/settings.png'
             accentColor: activeSystemPalette.accent
+
+            onClicked: {
+                smallSideButtonsColumn.settingsClicked();
+            }
         }
     }
+
+    signal settingsClicked()
 }
