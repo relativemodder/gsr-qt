@@ -26,7 +26,9 @@ void OverlayProcess::toggleShow() {
         process = new QProcess(this);
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
-        if (X11Fullscreen::instance()->isFullscreenWindowInFocus()) {
+        auto currentDesktop = env.value("XDG_SESSION_DESKTOP", "wtf");
+
+        if (X11Fullscreen::instance()->isFullscreenWindowInFocus() and currentDesktop != "Hyprland") {
             if (env.contains("QT_QPA_PLATFORM")) {
                 env.remove("QT_QPA_PLATFORM");
             }

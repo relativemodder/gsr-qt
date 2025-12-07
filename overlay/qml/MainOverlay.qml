@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
-import "./components" as Components // Убедитесь, что этот путь верен
+import "./components" as Components
 import org.kde.kirigami as Kirigami
 import org.kde.layershell 1.0 as LayerShell
 

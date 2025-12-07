@@ -25,6 +25,9 @@ qt_add_executable(${PROJECT_NAME}
     processes/overlayprocess.h
     processes/overlayprocess.cpp
 
+    processes/instanceprocess.h
+    processes/instanceprocess.cpp
+
     actions/toggleshowaction.cpp
     actions/toggleshowaction.h
 
