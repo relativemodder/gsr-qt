@@ -4,7 +4,7 @@ import QtQuick.Window
 import "." as Components
 
 Rectangle {
-    id: mainButtonRowRect
+    id: root
     
     color: '#98000000'
     Layout.fillWidth: true
@@ -12,49 +12,57 @@ Rectangle {
     implicitHeight: 220
     radius: 5
 
-    signal replayButtonClicked()
-    signal recordButtonClicked()
-    signal streamButtonClicked()
+    // Signals
+    signal buttonClicked(string buttonType)
+    signal buttonHoveredWhenActive(string buttonType)
 
-    property bool replayBtnActive: false
-    property bool recordBtnActive: false
-    property bool streamBtnActive: false
+    // Button states
+    property var activeStates: ({
+        replay: false,
+        record: false,
+        stream: false
+    })
+
+    // Configuration data
+    readonly property var buttonConfigs: [
+        { type: 'replay', mainText: qsTr('Instant Replay'), stateText: qsTr('Off'), imageSource: '../../images/replay.png' },
+        { type: 'record', mainText: qsTr('Record'), stateText: qsTr('Not recording'), imageSource: '../../images/record.png' },
+        { type: 'stream', mainText: qsTr('Livestream'), stateText: qsTr('Not streaming'), imageSource: '../../images/stream.png' }
+    ]
+
+    SystemPalette { 
+        id: palette
+        colorGroup: SystemPalette.Active 
+    }
 
     RowLayout {
-        id: mainButtonRow
-        Layout.fillWidth: true
         anchors.fill: parent
-
-        ListModel {
-            id: mainButtonRowModel
-            ListElement { cb: 'replay'; mainText: 'Instant Replay'; stateText: 'Off'; buttonImageSource: '../../images/replay.png' }
-            ListElement { cb: 'record'; mainText: 'Record'; stateText: 'Not recording'; buttonImageSource: '../../images/record.png' }
-            ListElement { cb: 'stream'; mainText: 'Livestream'; stateText: 'Not streaming'; buttonImageSource: '../../images/stream.png' }
-        }
-        
-        SystemPalette { id: activeSystemPalette; colorGroup: SystemPalette.Active }
+        spacing: 0
 
         Repeater {
-            model: mainButtonRowModel
+            model: root.buttonConfigs
 
             BigButton {
+                required property var modelData
+                
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.minimumWidth: 200
                 Layout.minimumHeight: 200
-                mainText: model.mainText
-                stateText: model.stateText
-                buttonImageSource: model.buttonImageSource
-                accentColor: activeSystemPalette.accent
                 
-                stillHovered: model.cb == 'replay' ? mainButtonRowRect.replayBtnActive :
-                    model.cb == 'record' ? mainButtonRowRect.recordBtnActive :
-                    model.cb == 'stream' ? mainButtonRowRect.streamBtnActive :
-                                            false
+                mainText: modelData.mainText
+                stateText: modelData.stateText
+                buttonImageSource: modelData.imageSource
+                accentColor: palette.accent
+                stillHovered: root.activeStates[modelData.type] || false
 
-                onClicked: {
-                    mainButtonRowRect[model.cb + 'ButtonClicked']()
+                onHoveredChanged: {
+                    if (hovered && (root.activeStates['replay'] || root.activeStates['record'] || root.activeStates['stream'])) {
+                        root.buttonHoveredWhenActive(modelData.type)
+                    }
                 }
+                
+                onClicked: root.buttonClicked(modelData.type)
             }
         }
     }

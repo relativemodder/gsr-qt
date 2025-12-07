@@ -23,11 +23,11 @@ Button {
         radius: 5
 
         Behavior on color { 
-            ColorAnimation { duration: 80 } 
+            ColorAnimation { duration: 100 } 
         }
 
         Behavior on border.color { 
-            ColorAnimation { duration: 80 } 
+            ColorAnimation { duration: 100 } 
         }
     }
 
@@ -48,6 +48,7 @@ Button {
             Layout.alignment: Qt.AlignHCenter     
             Layout.maximumWidth: bigButton.width
             Layout.minimumWidth: 1
+            Layout.topMargin: 5
         }
 
         Item {
@@ -80,6 +81,7 @@ Button {
             Layout.alignment: Qt.AlignHCenter     
             Layout.maximumWidth: bigButton.width
             Layout.minimumWidth: 1
+            Layout.bottomMargin: 5
         }
     }
 

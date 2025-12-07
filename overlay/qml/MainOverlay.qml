@@ -9,13 +9,13 @@ import org.kde.kirigami as Kirigami
 import org.kde.layershell 1.0 as LayerShell
 
 ApplicationWindow {
-    id: mainWindow
+    id: root
 
     width: Screen.desktopAvailableWidth
     height: Screen.desktopAvailableHeight
 
     flags: Qt.Window | Qt.FramelessWindowHint
-    color: 'transparent';
+    color: 'transparent'
     visible: false
     title: 'test'
 
@@ -23,40 +23,51 @@ ApplicationWindow {
     LayerShell.Window.layer: LayerShell.Window.LayerOverlay
     LayerShell.Window.exclusionZone: -1
 
-    Rectangle {
-        id: dimmerRectangle
-        anchors.fill: parent
-        color: '#83000000'
-        opacity: 0
+    // Submenu state management
+    QtObject {
+        id: submenuState
+        property bool replay: false
+        property bool record: false
+        property bool stream: false
+        
+        readonly property bool anyVisible: replay || record || stream
     }
 
+    SystemPalette { 
+        id: palette
+        colorGroup: SystemPalette.Active 
+    }
+
+    // Methods
+    function setSubmenuVisible(target, visible) {
+        submenuState.replay = (target === 'replay' && visible)
+        submenuState.record = (target === 'record' && visible)
+        submenuState.stream = (target === 'stream' && visible)
+    }
+
+    function toggleSubmenu(target) {
+        setSubmenuVisible(target, !submenuState[target])
+    }
+
+    function closeAllSubmenus() {
+        submenuState.replay = false
+        submenuState.record = false
+        submenuState.stream = false
+    }
+
+    // Keyboard shortcuts
     Shortcut {
         sequence: "Esc"
         onActivated: {
-            var anySubmenuVisible = mainWindow.replaySubmenuVisible || mainWindow.recordSubmenuVisible || mainWindow.streamSubmenuVisible;
-
-            if (anySubmenuVisible) {
-                mainWindow.replaySubmenuVisible = false
-                mainWindow.recordSubmenuVisible = false
-                mainWindow.streamSubmenuVisible = false
+            if (submenuState.anyVisible) {
+                root.closeAllSubmenus()
             } else {
-                 shutdownNotifier.intendedClose();
+                shutdownNotifier.intendedClose()
             }
         }
     }
 
-    SystemPalette { id: activeSystemPalette; colorGroup: SystemPalette.Active }
-
-    property bool replaySubmenuVisible: false
-    property bool recordSubmenuVisible: false
-    property bool streamSubmenuVisible: false
-
-    function setSubmenuVisible(target) {
-        replaySubmenuVisible = (target === 'replay' && !replaySubmenuVisible)
-        recordSubmenuVisible = (target === 'record' && !recordSubmenuVisible)
-        streamSubmenuVisible = (target === 'stream' && !streamSubmenuVisible)
-    }
-
+    // Data models
     ListModel {
         id: replayListModel
         ListElement { iconName: "media-playback-start"; name: "Turn On" }
@@ -65,18 +76,29 @@ ApplicationWindow {
         ListElement { iconName: "document-save"; name: "Save 10 min" }
         ListElement { iconName: "settings-configure"; name: "Settings" }
     }
+    
     ListModel {
         id: recordListModel
         ListElement { iconName: "media-playback-start"; name: "Start" }
         ListElement { iconName: "media-playback-pause"; name: "Pause" }
         ListElement { iconName: "settings-configure"; name: "Settings" }
     }
+    
     ListModel {
         id: streamListModel
         ListElement { iconName: "media-playback-start"; name: "Start" }
         ListElement { iconName: "settings-configure"; name: "Settings" }
     }
 
+    // Dimmer overlay
+    Rectangle {
+        id: dimmer
+        anchors.fill: parent
+        color: '#83000000'
+        opacity: 0
+    }
+
+    // Main panel
     Item {
         id: panelContainer
         y: -panelLayout.height
@@ -85,16 +107,16 @@ ApplicationWindow {
 
         ColumnLayout {
             id: panelLayout
-            Layout.fillWidth: true
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
             
             Component.onCompleted: panelContainer.height = implicitHeight
 
-            // HEADER
+            // Header
             Rectangle {
-                id: headerRect
                 color: 'black'
                 Layout.fillWidth: true
                 height: 70
@@ -102,7 +124,7 @@ ApplicationWindow {
                 Components.Header {}
             }
             
-            // MAIN BUTTONS ROW
+            // Main buttons
             RowLayout {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
@@ -111,27 +133,20 @@ ApplicationWindow {
                 Components.MainButtonRow {
                     id: mainButtonRow
 
-                    replayBtnActive: mainWindow.replaySubmenuVisible
-                    recordBtnActive: mainWindow.recordSubmenuVisible
-                    streamBtnActive: mainWindow.streamSubmenuVisible
+                    activeStates: ({
+                        replay: submenuState.replay,
+                        record: submenuState.record,
+                        stream: submenuState.stream
+                    })
 
-                    onReplayButtonClicked: {
-                        mainWindow.setSubmenuVisible('replay')
-                    }
-
-                    onRecordButtonClicked: {
-                        mainWindow.setSubmenuVisible('record')
-                    }
-
-                    onStreamButtonClicked: {
-                        mainWindow.setSubmenuVisible('stream')
-                    }
+                    onButtonClicked: (type) => root.toggleSubmenu(type)
+                    onButtonHoveredWhenActive: (type) => root.setSubmenuVisible(type, true)
                 }
+                
                 Components.SmallSideButtonsColumn {}
             }
 
-            // SUBMENUS (pls don't murder me)
-
+            // Submenus
             RowLayout {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter 
@@ -140,35 +155,29 @@ ApplicationWindow {
                 Components.SubmenuListView {
                     Layout.minimumHeight: 230
                     listModel: replayListModel
-                    menuVisible: mainWindow.replaySubmenuVisible
-                    activeSystemPalette: mainWindow.activeSystemPalette
-                    onClicked: (icon, name) => {
-                        mainWindow.replaySubmenuVisible = false
-                    }
+                    menuVisible: submenuState.replay
+                    activeSystemPalette: palette
+                    onClicked: (icon, name) => submenuState.replay = false
                 }
 
-                Item { width: 0; } 
+                Item { width: 0 } 
                 
                 Components.SubmenuListView {
                     Layout.maximumHeight: 140
                     Layout.alignment: Qt.AlignTop
                     listModel: recordListModel
-                    menuVisible: mainWindow.recordSubmenuVisible
-                    activeSystemPalette: mainWindow.activeSystemPalette
-                    onClicked: (icon, name) => {
-                        mainWindow.recordSubmenuVisible = false
-                    }
+                    menuVisible: submenuState.record
+                    activeSystemPalette: palette
+                    onClicked: (icon, name) => submenuState.record = false
                 }
 
                 Components.SubmenuListView {
                     Layout.maximumHeight: 95
                     Layout.alignment: Qt.AlignTop
                     listModel: streamListModel
-                    menuVisible: mainWindow.streamSubmenuVisible
-                    activeSystemPalette: mainWindow.activeSystemPalette
-                    onClicked: (icon, name) => {
-                        mainWindow.streamSubmenuVisible = false
-                    }
+                    menuVisible: submenuState.stream
+                    activeSystemPalette: palette
+                    onClicked: (icon, name) => submenuState.stream = false
                 }
 
                 Item { Layout.fillWidth: true }
@@ -176,29 +185,28 @@ ApplicationWindow {
         }
     }
 
-    
+    // Animations
     Component.onCompleted: {
         if (panelContainer.height > 0) {
-            fullAnimation.start()
+            openAnimation.start()
         }
     }
 
     Connections {
         target: shutdownNotifier
-        
         function onStartShutdownAnimation() {
             closeAnimation.start()
         }
     }
 
     SequentialAnimation {
-        id: fullAnimation
+        id: openAnimation
 
         PauseAnimation { duration: 100 }
 
         ParallelAnimation {
             NumberAnimation {
-                target: dimmerRectangle
+                target: dimmer
                 property: "opacity"
                 to: 1
                 duration: 300
@@ -222,7 +230,7 @@ ApplicationWindow {
 
         ParallelAnimation {
             NumberAnimation {
-                target: dimmerRectangle
+                target: dimmer
                 property: "opacity"
                 to: 0
                 duration: 300
