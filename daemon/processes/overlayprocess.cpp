@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QTimer>
 #include <signal.h>
+#include "../windowing/x11fs.h"
 
 OverlayProcess::OverlayProcess(QObject *parent)
     : QObject{parent}
@@ -23,6 +24,18 @@ void OverlayProcess::toggleShow() {
 
     if (process == nullptr) {
         process = new QProcess(this);
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+        if (X11Fullscreen::instance()->isFullscreenWindowInFocus()) {
+            if (env.contains("QT_QPA_PLATFORM")) {
+                env.remove("QT_QPA_PLATFORM");
+            }
+
+            env.insert("QT_QPA_PLATFORM", "xcb");
+        }
+
+        process->setProcessEnvironment(env);
+
         process->start(program, arguments);
 
         connect(process, &QProcess::readyReadStandardOutput, this, &OverlayProcess::onStdOut);

@@ -14,7 +14,7 @@ ApplicationWindow {
 
     flags: Qt.Window | Qt.FramelessWindowHint
     color: 'transparent';
-    visible: true
+    visible: false
     title: 'test'
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop

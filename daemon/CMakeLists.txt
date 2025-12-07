@@ -12,6 +12,7 @@ include(ECMQmlModule)
 
 find_package(KF6 REQUIRED COMPONENTS GlobalAccel)
 find_package(Qt6 REQUIRED COMPONENTS Core DBus Widgets)
+find_package(X11 REQUIRED)
 
 qt_standard_project_setup()
 
@@ -26,6 +27,9 @@ qt_add_executable(${PROJECT_NAME}
 
     actions/toggleshowaction.cpp
     actions/toggleshowaction.h
+
+    windowing/x11fs.h
+    windowing/x11fs.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -34,6 +38,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt::DBus
         Qt::Widgets
         KF6::GlobalAccel
+        ${X11_LIBRARIES}
 )
 
 include(GNUInstallDirs)
