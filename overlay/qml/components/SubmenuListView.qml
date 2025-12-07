@@ -48,6 +48,14 @@ Rectangle {
                 border.color: ddItem.hovered ? accentColor : 'transparent'
                 border.width: 2
                 radius: 5
+
+                Behavior on color { 
+                    ColorAnimation { duration: 70 } 
+                }
+
+                Behavior on border.color { 
+                    ColorAnimation { duration: 70 } 
+                }
             }
 
             contentItem: RowLayout {
