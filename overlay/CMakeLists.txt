@@ -47,6 +47,7 @@ qt_add_qml_module(${PROJECT_NAME}
         images/replay.png
         images/stream.png
         images/settings.png
+        images/close.svg
     SOURCES main.cpp
         backends/shutdownnotifier.h
         backends/shutdownnotifier.cpp
