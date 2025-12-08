@@ -1,9 +1,7 @@
-#include <iostream>
-#include <qdbusinterface.h>
-#include <qdbusreply.h>
 #include "dbusinterface.h"
 #include "processes/overlayprocess.h"
 #include "windowing/activewindow.h"
+#include <iostream>
 
 DBusInterface::DBusInterface(QObject *parent)
     : QObject{parent}
@@ -41,7 +39,14 @@ void DBusInterface::setActiveWindowTitle(QString title) {
 
     ActiveWindow::instance()->setActiveWindowInfo(info);
 
+    activeWindowTitleChanged();
+
     std::cout << "Set active window title to: " << title.toStdString() << std::endl;
+}
+
+QString DBusInterface::windowTitle() const {
+    QString title = ActiveWindow::instance()->info().title;
+    return title;
 }
 
 QString DBusInterface::getActiveWindowTitle() {

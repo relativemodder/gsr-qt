@@ -16,7 +16,9 @@ function subToChanges(client) {
     if (captionHandlers.has(client)) return; // already tracking
 
     const handler = () => {
-        sendNewActiveWindowTitle(client.caption || "");
+        if (workspace.activeWindow === client) {
+            sendNewActiveWindowTitle(client.caption || "");
+        }
     };
 
     captionHandlers.set(client, handler);

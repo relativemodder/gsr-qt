@@ -37,3 +37,21 @@ void ActiveWindow::requestWindowTitle()
         std::cerr << "Failed to get active window title from daemon: " << qPrintable(connection->lastError().message()) << "\n";
     }
 }
+
+void ActiveWindow::onActiveWindowTitleChanged() 
+{
+    requestWindowTitle();
+}
+
+void ActiveWindow::subToChangesSignal() 
+{
+    auto connection = DBusInterface::instance()->getConnection();
+    connection->connect(
+        APP_ID,
+        "/",
+        APP_ID,
+        "activeWindowTitleChanged",
+        this,
+        SLOT(onActiveWindowTitleChanged())
+    );
+}

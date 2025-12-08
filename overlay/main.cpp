@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     ActiveWindow::instance()->requestWindowTitle();
+    ActiveWindow::instance()->subToChangesSignal();
 
     engine.rootContext()->setContextProperty(QStringLiteral("shutdownNotifier"), ShutdownNotifier::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());

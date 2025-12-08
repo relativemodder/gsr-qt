@@ -13,9 +13,13 @@ public:
     QString getTitle() const;
     void setTitle(const QString& t);
     void requestWindowTitle();
+    void subToChangesSignal();
 
 signals:
     void titleChanged();
+
+public slots:
+    void onActiveWindowTitleChanged();
 
 private:
     QString m_title;

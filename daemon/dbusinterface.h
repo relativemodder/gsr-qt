@@ -4,7 +4,6 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QObject>
-#include <qdbusconnection.h>
 
 class DBusInterface : public QObject, protected QDBusContext
 {
@@ -21,8 +20,14 @@ public:
     void setConnection(QDBusConnection* conn);
     QDBusConnection* getConnection() const { return connection; }
 
+    Q_PROPERTY(QString windowTitle READ getActiveWindowTitle NOTIFY activeWindowTitleChanged);
+    QString windowTitle() const;
+
 public slots:
     void toggleShow();
     void setActiveWindowTitle(QString title);
     QString getActiveWindowTitle();
+
+signals:
+    void activeWindowTitleChanged();
 };

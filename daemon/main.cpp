@@ -49,7 +49,10 @@ int main(int argc, char *argv[])
     
     DBusInterface::instance()->setConnection(&connection);
 
-    connection.registerObject("/", DBusInterface::instance(), QDBusConnection::ExportAllSlots);
+    connection.registerObject(
+        "/", DBusInterface::instance(), 
+        QDBusConnection::ExportAllSlots | QDBusConnection::ExportAllProperties | QDBusConnection::ExportAllSignals
+    );
 
     InstanceProcess::instance()->subToSigUsr1();
 
