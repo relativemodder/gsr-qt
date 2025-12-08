@@ -6,7 +6,7 @@ import QtQuick.Window
 RowLayout {
     anchors.fill: parent
     Image {
-        source: "../../images/gpu_screen_recorder_logo.png"
+        source: "qrc:/GsrQt/images/gpu_screen_recorder_logo.png"
         Layout.maximumHeight: 40
         Layout.maximumWidth: 40
         fillMode: Image.PreserveAspectFit

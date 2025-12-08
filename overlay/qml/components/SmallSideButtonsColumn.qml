@@ -22,7 +22,7 @@ ColumnLayout {
         Components.SmallIconButton {
             anchors.fill: parent
             imageSize: 30
-            buttonImageSource: '../../images/settings.png'
+            buttonImageSource: 'qrc:/GsrQt/images/settings.png'
             accentColor: activeSystemPalette.accent
 
             onClicked: {

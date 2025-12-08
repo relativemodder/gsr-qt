@@ -143,6 +143,8 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 100
 
+                Item { Layout.minimumWidth: 70 }
+
                 Components.MainButtonRow {
                     id: mainButtonRow
 
@@ -164,6 +166,8 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter 
                 Layout.maximumWidth: 760
+
+                Item { Layout.minimumWidth: 35 } // Why tf 35 you may ask? The upper buttons have 70px margins, so half of that.
 
                 Components.SubmenuListView {
                     Layout.minimumHeight: 230
@@ -211,11 +215,31 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         Layout.maximumHeight: 120
 
-        Rectangle {
+        MouseArea {
+            id: activeWindowMouseArea
             anchors.fill: parent
-            color: 'black'
+            hoverEnabled: true
+            onEntered: {
+                activeWindowBackgroundRect.color = 'black'
+            }
+            onExited: {
+                activeWindowBackgroundRect.color = '#c5000000'
+            }
+        }
+
+        Rectangle {
+            id: activeWindowBackgroundRect
+            anchors.fill: parent
+            color: '#c5000000'
             Layout.minimumHeight: 80
             radius: 10
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+            }
         }
 
         Text {
