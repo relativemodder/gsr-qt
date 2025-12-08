@@ -17,7 +17,7 @@ ApplicationWindow {
     flags: Qt.Window | Qt.FramelessWindowHint
     color: 'transparent'
     visible: false
-    title: 'test'
+    title: 'GPU Screen Recorder Overlay'
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop
     LayerShell.Window.layer: LayerShell.Window.LayerOverlay
@@ -123,6 +123,7 @@ ApplicationWindow {
                 top: parent.top
                 left: parent.left
                 right: parent.right
+                bottom: parent.bottom
             }
             
             Component.onCompleted: panelContainer.height = implicitHeight
@@ -194,6 +195,37 @@ ApplicationWindow {
 
                 Item { Layout.fillWidth: true }
             }
+
+            Item {
+                Layout.fillHeight: true
+            }
+        }
+    }
+
+    RowLayout {
+        id: activeWindowContainer
+        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignHCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 80
+        anchors.horizontalCenter: parent.horizontalCenter
+        Layout.maximumHeight: 120
+
+        Rectangle {
+            anchors.fill: parent
+            color: 'black'
+            Layout.minimumHeight: 80
+            radius: 10
+        }
+
+        Text {
+            id: activeWindowTitle
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            text: activeWindow.title || qsTr("No Active Window")
+            color: 'white'
+            font.pixelSize: 20
+            leftPadding: 40
+            rightPadding: 40
         }
     }
 
@@ -214,15 +246,18 @@ ApplicationWindow {
     SequentialAnimation {
         id: openAnimation
 
-        PauseAnimation { duration: 100 }
-
         ParallelAnimation {
-            NumberAnimation {
-                target: dimmer
-                property: "opacity"
-                to: 1
-                duration: 300
-                easing.type: Easing.OutQuad
+
+            SequentialAnimation {
+
+                PauseAnimation { duration: 300 }
+                NumberAnimation {
+                    target: dimmer
+                    property: "opacity"
+                    to: 1
+                    duration: 300
+                    easing.type: Easing.OutQuad
+                }
             }
 
             PropertyAnimation {
@@ -238,11 +273,19 @@ ApplicationWindow {
     SequentialAnimation {
         id: closeAnimation
 
-        PauseAnimation { duration: 100 }
+        // PauseAnimation { duration: 100 }
 
         ParallelAnimation {
             NumberAnimation {
                 target: dimmer
+                property: "opacity"
+                to: 0
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+
+            NumberAnimation {
+                target: activeWindowContainer
                 property: "opacity"
                 to: 0
                 duration: 300

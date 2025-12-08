@@ -2,9 +2,13 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QFile>
+#include <QDBusConnection>
+#include <QDBusError>
 #include "shortcuts.h"
 #include "signal.h"
 #include "processes/instanceprocess.h"
+#include "windowing/activewindow.h"
+#include "dbusinterface.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,7 +29,27 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+    std::cout << " No other instance is running. Starting daemon...\n";
+
     QApplication a(argc, argv);
+
+    auto connection = QDBusConnection::sessionBus();
+
+    if (!connection.isConnected()) {
+        std::cerr << "Cannot connect to the D-Bus session bus.\n"
+                 "To start it, run:\n"
+                 "\teval `dbus-launch --auto-syntax`\n";
+        return 1;
+    }
+
+    if (!connection.registerService(APP_ID)) {
+        qWarning("%s\n", qPrintable(connection.lastError().message()));
+        exit(1);
+    }
+    
+    DBusInterface::instance()->setConnection(&connection);
+
+    connection.registerObject("/", DBusInterface::instance(), QDBusConnection::ExportAllSlots);
 
     InstanceProcess::instance()->subToSigUsr1();
 
@@ -39,8 +63,12 @@ int main(int argc, char *argv[])
             currentDesktop + " is not supported by now. KDE is recommended.\n\nIf you want to open the overlay, call gsr-qt-daemon-service again or send SIGUSR1 to it."
         );
     }
+    else {
+        ActiveWindow::instance()->applyKWinHacks();
+    }
 
     Shortcuts::instance()->initGlobalActions();
+
 
     return a.exec();
 }

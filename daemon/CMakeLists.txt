@@ -22,6 +22,9 @@ qt_add_executable(${PROJECT_NAME}
     shortcuts.h
     shortcuts.cpp
 
+    dbusinterface.h
+    dbusinterface.cpp
+
     processes/overlayprocess.h
     processes/overlayprocess.cpp
 
@@ -33,6 +36,9 @@ qt_add_executable(${PROJECT_NAME}
 
     windowing/x11fs.h
     windowing/x11fs.cpp
+
+    windowing/activewindow.h
+    windowing/activewindow.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

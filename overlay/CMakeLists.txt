@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.10.0)
 
 project(gsr-qt-overlay VERSION 0.1.0 LANGUAGES C CXX)
 
-add_compile_definitions(OVRELAY_APP_ID="com.github.relative.gsrqt.overlay")
-
 find_package(Qt6 REQUIRED COMPONENTS Core DBus Widgets Quick Gui QuickControls2)
 find_package(LayerShellQt REQUIRED)
 
@@ -11,7 +9,7 @@ find_package(PkgConfig REQUIRED)
 find_package(X11 REQUIRED)
 pkg_check_modules(XFIXES REQUIRED xfixes)
 
-include_directories(${X11_INCLUDE_DIR})
+include_directories(${X11_INCLUDE_DIR} backends)
 
 qt_standard_project_setup()
 
@@ -50,8 +48,16 @@ qt_add_qml_module(${PROJECT_NAME}
         images/stream.png
         images/settings.png
     SOURCES main.cpp
-        shutdownnotifier.h
-        shutdownnotifier.cpp
+        backends/shutdownnotifier.h
+        backends/shutdownnotifier.cpp
+        backends/activewindow.h
+        backends/activewindow.cpp
+
+        dbusinterface.h
+        dbusinterface.cpp
+        
+        x11hacks.h
+        x11hacks.cpp
 )
 
 

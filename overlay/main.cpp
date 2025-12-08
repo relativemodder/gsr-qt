@@ -3,16 +3,19 @@
 #include <QQuickStyle>
 #include <QQuickWindow>
 #include <QQmlContext>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
 #include <csignal>
 #include <iostream>
-#include <LayerShellQt/shell.h>
-#include <LayerShellQt/window.h>
 #include <QWindow>
-#include "shutdownnotifier.h"
+#include "backends/shutdownnotifier.h"
 #include <qcoreapplication.h>
+#include <qdbusinterface.h>
 #include <unistd.h>
+#include <QDBusConnection>
+#include <QDBusError>
+#include <QDBusReply>
+#include "dbusinterface.h"
+#include "x11hacks.h"
+#include "backends/activewindow.h"
 
 void termination_signal_handler(int signum) {
     if (globalShutdownTimer) {
@@ -36,62 +39,35 @@ void install_signal_handler() {
     }
 }
 
-void apply_x11_hacks(QQuickWindow *window) {
-    if (window) {
-        window->setFlags(Qt::FramelessWindowHint | 
-                         Qt::WindowStaysOnTopHint | 
-                         Qt::BypassWindowManagerHint |
-                        Qt::WindowDoesNotAcceptFocus);
-        
-        window->setColor(QColor(0, 0, 0, 0));
-        window->setProperty("_q_showWithoutActivating", true);
-
-        QScreen *screen = QGuiApplication::primaryScreen();
-        window->setGeometry(screen->geometry());
-        window->show();
-
-        auto *x11Application = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
-
-        QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
-        Display *dpy = x11Application->display();
-        WId win = window->winId();
-
-        Atom stateAtom = XInternAtom(dpy, "_NET_WM_STATE", False);
-        Atom stateAbove = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
-        Atom stateFullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-        Atom stateSkipTaskbar = XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
-        Atom stateSkipPager = XInternAtom(dpy, "_NET_WM_STATE_SKIP_PAGER", False);
-        Atom windowTypeOverlay = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_OVERLAY", False);
-        
-
-        Atom states[] = {stateAbove, stateFullscreen, stateSkipTaskbar, stateSkipPager, windowTypeOverlay};
-
-        XChangeProperty(dpy, win, stateAtom, XA_ATOM, 32,
-                    PropModeReplace, (unsigned char *)states, 4);
-
-        XRaiseWindow(dpy, win);
-
-        XGrabKeyboard(dpy, win, True, 
-                    GrabModeAsync, GrabModeAsync, CurrentTime);
-
-        XGrabPointer(dpy, win, True, 
-                    ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                    GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-
-        XFlush(dpy);
-    }
-}
-
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    app.setDesktopFileName(OVRELAY_APP_ID);
+
+    auto connection = QDBusConnection::sessionBus();
+
+    if (!connection.isConnected()) {
+        std::cerr << "Cannot connect to the D-Bus session bus.\n"
+                 "To start it, run:\n"
+                 "\teval `dbus-launch --auto-syntax`\n";
+        return 1;
+    }
+
+    if (!connection.registerService(OVERLAY_APP_ID)) {
+        qWarning("%s\n", qPrintable(connection.lastError().message()));
+        exit(1);
+    }
+    
+    DBusInterface::instance()->setConnection(&connection);
+    connection.registerObject("/", DBusInterface::instance(), QDBusConnection::ExportAllSlots);
 
     install_signal_handler();
 
     QQmlApplicationEngine engine;
 
+    ActiveWindow::instance()->requestWindowTitle();
+
     engine.rootContext()->setContextProperty(QStringLiteral("shutdownNotifier"), ShutdownNotifier::instance());
+    engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());
 
     QObject::connect(
         &engine,
@@ -117,7 +93,6 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
 
     engine.loadFromModule("GsrQt", "MainOverlay");
-    
 
     std::cout << "ok window created\n";
 

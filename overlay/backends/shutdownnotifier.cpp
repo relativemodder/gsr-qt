@@ -1,4 +1,4 @@
-#include "shutdownnotifier.h"
+#include "backends/shutdownnotifier.h"
 #include <unistd.h>
 
 ShutdownNotifier* ShutdownNotifier::instance()
