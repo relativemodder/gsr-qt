@@ -3,6 +3,7 @@
 
 struct GameWindowInfo {
     QString title;
+    bool isFullscreen;
 };
 
 class ActiveWindow : public QObject 

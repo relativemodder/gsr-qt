@@ -28,6 +28,8 @@ public slots:
     void setActiveWindowTitle(QString title);
     QString getActiveWindowTitle();
 
+    void setActiveWindowFullscreen(bool isFullscreen);
+
 signals:
     void activeWindowTitleChanged();
 };

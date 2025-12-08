@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <signal.h>
 #include "../windowing/x11fs.h"
+#include "../windowing/activewindow.h"
 
 OverlayProcess::OverlayProcess(QObject *parent)
     : QObject{parent}
@@ -28,7 +29,13 @@ void OverlayProcess::toggleShow() {
 
         auto currentDesktop = env.value("XDG_SESSION_DESKTOP", "wtf");
 
-        if (X11Fullscreen::instance()->isFullscreenWindowInFocus() and currentDesktop != "Hyprland") {
+        bool isX11Fullscreen = X11Fullscreen::instance()->isFullscreenWindowInFocus();
+        bool isFsInDE = ActiveWindow::instance()->info().isFullscreen;
+        bool isHyprland = (currentDesktop == "Hyprland");
+
+        bool considerXcb = (isX11Fullscreen && !isHyprland) || (isFsInDE && !isHyprland);
+
+        if (considerXcb) {
             if (env.contains("QT_QPA_PLATFORM")) {
                 env.remove("QT_QPA_PLATFORM");
             }

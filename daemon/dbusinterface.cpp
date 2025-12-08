@@ -53,3 +53,12 @@ QString DBusInterface::getActiveWindowTitle() {
     GameWindowInfo info = ActiveWindow::instance()->info();
     return info.title;
 }
+
+void DBusInterface::setActiveWindowFullscreen(bool isFullscreen) {
+    GameWindowInfo info = ActiveWindow::instance()->info();
+    info.isFullscreen = isFullscreen;
+
+    ActiveWindow::instance()->setActiveWindowInfo(info);
+
+    std::cout << "Set active window fullscreen to: " << (isFullscreen ? "true" : "false") << std::endl;
+}
