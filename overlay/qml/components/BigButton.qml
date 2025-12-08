@@ -16,19 +16,20 @@ Button {
     property alias stateText: bottomText.text
     property double imageSize: 100
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: bigButton.clicked()
+        onEntered: hoveredChanged()
+        onExited: hoveredChanged()
+        cursorShape: Qt.PointingHandCursor
+    }
+
     background: Rectangle {
         color: bigButton.hovered || bigButton.stillHovered ? 'black' : 'transparent'
         border.color: bigButton.hovered || bigButton.stillHovered ? bigButton.accentColor : 'transparent'
         border.width: 2
         radius: 5
-
-        Behavior on color { 
-            ColorAnimation { duration: 100 } 
-        }
-
-        Behavior on border.color { 
-            ColorAnimation { duration: 100 } 
-        }
     }
 
     contentItem: ColumnLayout {
@@ -75,7 +76,7 @@ Button {
         Text {
             id: bottomText
             text: 'Bottom text'
-            color: 'white'
+            color: bigButton.stillActive ? bigButton.accentColor : '#a8a8a8'
             opacity: 0.5
             horizontalAlignment: Text.AlignHCenter
             Layout.alignment: Qt.AlignHCenter     

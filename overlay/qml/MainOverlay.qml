@@ -70,24 +70,24 @@ ApplicationWindow {
     // Data models
     ListModel {
         id: replayListModel
-        ListElement { iconName: "media-playback-start"; name: "Turn On" }
-        ListElement { iconName: "document-save"; name: "Save" }
-        ListElement { iconName: "document-save"; name: "Save 1 min" }
-        ListElement { iconName: "document-save"; name: "Save 10 min" }
-        ListElement { iconName: "settings-configure"; name: "Settings" }
+        ListElement {action: "replay-toggle"; iconName: "media-playback-start"; name: qsTr("Turn On") }
+        ListElement {action: "replay-save"; iconName: "document-save"; name: qsTr("Save") }
+        ListElement {action: "replay-save-1-min"; iconName: "document-save"; name: qsTr("Save 1 min") }
+        ListElement {action: "replay-save-10-min"; iconName: "document-save"; name: qsTr("Save 10 min") }
+        ListElement {action: "replay-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
     }
     
     ListModel {
         id: recordListModel
-        ListElement { iconName: "media-playback-start"; name: "Start" }
-        ListElement { iconName: "media-playback-pause"; name: "Pause" }
-        ListElement { iconName: "settings-configure"; name: "Settings" }
+        ListElement {action: "record-toggle"; iconName: "media-playback-start"; name: qsTr("Start") }
+        ListElement {action: "record-pause"; iconName: "media-playback-pause"; name: qsTr("Pause") }
+        ListElement {action: "record-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
     }
     
     ListModel {
         id: streamListModel
-        ListElement { iconName: "media-playback-start"; name: "Start" }
-        ListElement { iconName: "settings-configure"; name: "Settings" }
+        ListElement {action: "stream-toggle"; iconName: "media-playback-start"; name: qsTr("Start") }
+        ListElement {action: "stream-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
     }
 
     // Dimmer overlay
@@ -96,6 +96,18 @@ ApplicationWindow {
         anchors.fill: parent
         color: '#83000000'
         opacity: 0
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: '#ea000000' }
+            GradientStop { position: 1.0; color: '#5d000000' }
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (submenuState.anyVisible) {
+                    root.closeAllSubmenus()
+                }
+            }
+        }
     }
 
     // Main panel
@@ -157,7 +169,7 @@ ApplicationWindow {
                     listModel: replayListModel
                     menuVisible: submenuState.replay
                     activeSystemPalette: palette
-                    onClicked: (icon, name) => submenuState.replay = false
+                    onClicked: (action, icon, name) => submenuState.replay = false
                 }
 
                 Item { width: 0 } 
@@ -168,7 +180,7 @@ ApplicationWindow {
                     listModel: recordListModel
                     menuVisible: submenuState.record
                     activeSystemPalette: palette
-                    onClicked: (icon, name) => submenuState.record = false
+                    onClicked: (action, icon, name) => submenuState.record = false
                 }
 
                 Components.SubmenuListView {
@@ -177,7 +189,7 @@ ApplicationWindow {
                     listModel: streamListModel
                     menuVisible: submenuState.stream
                     activeSystemPalette: palette
-                    onClicked: (icon, name) => submenuState.stream = false
+                    onClicked: (action, icon, name) => submenuState.stream = false
                 }
 
                 Item { Layout.fillWidth: true }

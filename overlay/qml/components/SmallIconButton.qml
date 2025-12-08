@@ -11,6 +11,15 @@ Button {
     property double imageSize: 40
     property alias buttonImageSource: buttonImage.source
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: smallIconButton.clicked()
+        onEntered: hoveredChanged()
+        onExited: hoveredChanged()
+        cursorShape: Qt.PointingHandCursor
+    }
+
     background: Rectangle {
         color: smallIconButton.hovered ? 'black' : 'transparent'
         border.color: smallIconButton.hovered ? smallIconButton.accentColor : 'transparent'

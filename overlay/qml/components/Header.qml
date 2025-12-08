@@ -35,6 +35,16 @@ RowLayout {
             border.color: closeButton.down ? '#a4333333' : (closeButton.hovered ? '#77969696': 0)
             radius: 8
         }
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: closeButton.clicked()
+            onEntered: closeButton.hoveredChanged()
+            onExited: closeButton.hoveredChanged()
+            cursorShape: Qt.PointingHandCursor
+        }
+
         opacity: closeButton.down ? 0.5 : 1
         text: ''
         onClicked: {

@@ -24,10 +24,10 @@ Rectangle {
     })
 
     // Configuration data
-    readonly property var buttonConfigs: [
-        { type: 'replay', mainText: qsTr('Instant Replay'), stateText: qsTr('Off'), imageSource: '../../images/replay.png' },
-        { type: 'record', mainText: qsTr('Record'), stateText: qsTr('Not recording'), imageSource: '../../images/record.png' },
-        { type: 'stream', mainText: qsTr('Livestream'), stateText: qsTr('Not streaming'), imageSource: '../../images/stream.png' }
+    property var buttonConfigs: [
+        { type: 'replay', active: false, mainText: qsTr('Instant Replay'), stateText: qsTr('Off'), imageSource: '../../images/replay.png' },
+        { type: 'record', active: false, mainText: qsTr('Record'), stateText: qsTr('Not recording'), imageSource: '../../images/record.png' },
+        { type: 'stream', active: false, mainText: qsTr('Livestream'), stateText: qsTr('Not streaming'), imageSource: '../../images/stream.png' }
     ]
 
     SystemPalette { 
@@ -55,6 +55,7 @@ Rectangle {
                 buttonImageSource: modelData.imageSource
                 accentColor: palette.accent
                 stillHovered: root.activeStates[modelData.type] || false
+                stillActive: modelData.active || false
 
                 onHoveredChanged: {
                     if (hovered && (root.activeStates['replay'] || root.activeStates['record'] || root.activeStates['stream'])) {

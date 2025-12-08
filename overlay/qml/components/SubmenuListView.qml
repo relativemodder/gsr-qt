@@ -48,14 +48,15 @@ Rectangle {
                 border.color: ddItem.hovered ? accentColor : 'transparent'
                 border.width: 2
                 radius: 5
+            }
 
-                Behavior on color { 
-                    ColorAnimation { duration: 70 } 
-                }
-
-                Behavior on border.color { 
-                    ColorAnimation { duration: 70 } 
-                }
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: ddItem.clicked()
+                onEntered: ddItem.hoveredChanged()
+                onExited: ddItem.hoveredChanged()
+                cursorShape: Qt.PointingHandCursor
             }
 
             contentItem: RowLayout {
@@ -77,9 +78,9 @@ Rectangle {
                 }
             }
             
-            onClicked: root.clicked(model.iconName, model.name)
+            onClicked: root.clicked(model.action, model.iconName, model.name)
         }
     }
     
-    signal clicked(string iconName, string name)
+    signal clicked(string action, string iconName, string name)
 }
