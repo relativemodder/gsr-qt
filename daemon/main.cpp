@@ -8,6 +8,7 @@
 #include "signal.h"
 #include "processes/instanceprocess.h"
 #include "windowing/activewindow.h"
+#include <gsrsettings.h>
 #include "dbusinterface.h"
 
 int main(int argc, char *argv[])
@@ -72,8 +73,11 @@ int main(int argc, char *argv[])
         ActiveWindow::instance()->applyKWinHacks();
     }
 
-    Shortcuts::instance()->initGlobalActions();
+    std::cout << "Settings test. Output dir: " << GSRSettings::instance().getOutputDir().toStdString() << std::endl;
+    GSRSettings::instance().setOutputDir(GSRSettings::instance().getOutputDir());
+    std::cout << "Settings test done.\n";
 
+    Shortcuts::instance()->initGlobalActions();
 
     return a.exec();
 }
