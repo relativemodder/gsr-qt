@@ -15,6 +15,7 @@
 #include <QDBusReply>
 #include "dbusinterface.h"
 #include "x11hacks.h"
+#include <gsrsettings.h>
 #include "backends/activewindow.h"
 
 void termination_signal_handler(int signum) {
@@ -41,9 +42,6 @@ void install_signal_handler() {
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setOrganizationName("Relative");
-    QCoreApplication::setApplicationName("gsr-qt");
-
     QGuiApplication app(argc, argv);
     std::cout << "Created QGuiApplication\n";
 
@@ -58,8 +56,6 @@ int main(int argc, char *argv[])
     }
 
     qDebug() << "Checked connection";
-
-
 
     if (!connection.registerService(OVERLAY_APP_ID)) {
         auto qwerr = connection.lastError();
@@ -93,6 +89,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty(QStringLiteral("shutdownNotifier"), ShutdownNotifier::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());
+    engine.rootContext()->setContextProperty(QStringLiteral("settings"), &GSRSettings::instance());
 
     std::cout << "Context properties are set\n";
 

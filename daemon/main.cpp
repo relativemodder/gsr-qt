@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
 
     std::cout << " No other instance is running. Starting daemon...\n";
 
-    QCoreApplication::setOrganizationName("Relative");
-    QCoreApplication::setApplicationName("gsr-qt");
     QApplication a(argc, argv);
 
     auto connection = QDBusConnection::sessionBus();
