@@ -20,7 +20,7 @@ ApplicationWindow {
     title: 'GPU Screen Recorder Overlay'
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop
-    LayerShell.Window.layer: LayerShell.Window.LayerOverlay
+    LayerShell.Window.layer: LayerShell.Window.LayerTop
     LayerShell.Window.exclusionZone: -1
 
     // Submenu state management
