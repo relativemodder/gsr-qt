@@ -80,7 +80,13 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: getButtonEnabled(model)
-                onClicked: ddItem.clicked()
+                onClicked: {
+                    if (!getButtonEnabled(model))
+                    {
+                        return;
+                    } 
+                    ddItem.clicked()
+                }
                 onEntered: ddItem.hoveredChanged()
                 onExited: ddItem.hoveredChanged()
                 cursorShape: getButtonEnabled(model) ? Qt.PointingHandCursor : Qt.ForbiddenCursor
