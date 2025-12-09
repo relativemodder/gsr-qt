@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
 
     qDebug() << "Checked connection";
 
+
+
     if (!connection.registerService(OVERLAY_APP_ID)) {
         auto qwerr = connection.lastError();
         auto qwr = qwerr.message();

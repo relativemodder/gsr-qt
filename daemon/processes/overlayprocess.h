@@ -1,9 +1,10 @@
 #pragma once
-#include <QObject>
-#include <QAction>
-#include <QProcess>
 
-class OverlayProcess : public QObject 
+#include <QObject>
+#include <QProcess>
+#include <QList>
+
+class OverlayProcess : public QObject
 {
     Q_OBJECT
 
@@ -16,6 +17,8 @@ public:
     void overkill();
 
 private:
+    void startOverlay();
+
     QProcess* process = nullptr;
     bool alreadyTerminating = false;
 

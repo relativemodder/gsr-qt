@@ -1,9 +1,11 @@
 #include "overlayprocess.h"
+
 #include <iostream>
 #include <QTimer>
 #include <QDir>
 #include <QFile>
 #include <signal.h>
+
 #include "../windowing/x11fs.h"
 #include "../windowing/activewindow.h"
 
@@ -17,88 +19,104 @@ OverlayProcess* OverlayProcess::instance()
     return &p;
 }
 
-void OverlayProcess::toggleShow() {
-    QString program = "/usr/bin/env";
-    QStringList arguments;
+void OverlayProcess::toggleShow()
+{
+    if (!process) {
+        startOverlay();
+        return;
+    }
 
-    arguments << "gsr-qt-overlay";
+    if (alreadyTerminating) {
+        std::cerr << "hard kill\n";
+        process->kill();   // immediate SIGKILL
+        return;
+    }
 
-    if (findOverlayProcesses().count() > 1) {
-        std::cerr << "Multiple overlay processes detected, overkilling.\n";
-        for (pid_t pid : findOverlayProcesses()) {
-            std::cerr << " Killing PID: " << pid << std::endl;
+    alreadyTerminating = true;
+
+    std::cerr << "graceful terminate\n";
+    process->terminate();
+
+    // if not dead in 600 ms just force kill
+    QTimer::singleShot(600, this, [this]() {
+        if (process && process->state() != QProcess::NotRunning) {
+            std::cerr << "terminate timeout, killing\n";
+            process->kill();
+        }
+    });
+}
+
+
+void OverlayProcess::startOverlay()
+{
+    // kill extra processes first
+    auto pids = findOverlayProcesses();
+    if (pids.size() > 1) {
+        std::cerr << "Multiple overlay processes found\n";
+        for (pid_t pid : pids) {
+            std::cerr << " - killing PID: " << pid << "\n";
             kill(pid, SIGKILL);
         }
-        delete process;
+    }
+
+    process = new QProcess(this);
+    alreadyTerminating = false;
+
+    // environment
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    bool isX11Fullscreen = X11Fullscreen::instance()->isFullscreenWindowInFocus();
+    bool isFsInDE = ActiveWindow::instance()->info().isFullscreen;
+    bool isHyprland = (env.value("XDG_SESSION_DESKTOP") == "Hyprland");
+
+    bool useXcb = ((isX11Fullscreen || isFsInDE) && !isHyprland);
+
+    if (useXcb)
+        env.insert("QT_QPA_PLATFORM", "xcb");
+
+    process->setProcessEnvironment(env);
+
+    connect(process, &QProcess::readyReadStandardOutput,
+            this, &OverlayProcess::onStdOut);
+
+    connect(process, &QProcess::readyReadStandardError,
+            this, &OverlayProcess::onStdErr);
+
+    connect(process, &QProcess::finished,
+            this,
+            [this](int, QProcess::ExitStatus) {
+                std::cerr << "[overlay] finished()\n";
+                if (process) {
+                    process->deleteLater();
+                    process = nullptr;
+                }
+                alreadyTerminating = false;
+            });
+
+
+    process->start("/usr/bin/env", { "gsr-qt-overlay" });
+
+    if (!process->waitForStarted(100)) {
+        std::cerr << "[overlay] Failed to start overlay\n";
+        process->deleteLater();
         process = nullptr;
-        alreadyTerminating = false;
-    }
-
-    if (process == nullptr) {
-        process = new QProcess(this);
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-        auto currentDesktop = env.value("XDG_SESSION_DESKTOP", "wtf");
-
-        bool isX11Fullscreen = X11Fullscreen::instance()->isFullscreenWindowInFocus();
-        bool isFsInDE = ActiveWindow::instance()->info().isFullscreen;
-        bool isHyprland = (currentDesktop == "Hyprland");
-
-        bool considerXcb = (isX11Fullscreen && !isHyprland) || (isFsInDE && !isHyprland);
-
-        if (considerXcb) {
-            if (env.contains("QT_QPA_PLATFORM")) {
-                env.remove("QT_QPA_PLATFORM");
-            }
-
-            env.insert("QT_QPA_PLATFORM", "xcb");
-        }
-
-        process->setProcessEnvironment(env);
-
-        process->start(program, arguments);
-
-        connect(process, &QProcess::readyReadStandardOutput, this, &OverlayProcess::onStdOut);
-        connect(process, &QProcess::readyReadStandardError, this, &OverlayProcess::onStdErr);
-
-        connect(process, &QProcess::finished, [&](int exitCode, QProcess::ExitStatus exitStatus) {
-            delete process;
-            process = nullptr;
-        });
-
-        alreadyTerminating = false;
-    }
-    else {
-        if (alreadyTerminating) {
-            overkill();
-            return;
-        }
-
-        alreadyTerminating = true;
-        
-        overkill();
-
-        if (process->state() == QProcess::Running) {
-            kill(process->processId(), SIGINT);
-        }
-        else {
-            delete process;
-            process = nullptr;
-
-            return;
-        }
     }
 }
 
+// kill not controlled overlay processes
 void OverlayProcess::overkill()
 {
-    if (findOverlayProcesses().isEmpty()) {
-        delete process;
-        process = nullptr;
-        alreadyTerminating = false;
+    auto pids = findOverlayProcesses();
+    for (pid_t pid : pids) {
+        kill(pid, SIGKILL);
+    }
+
+    if (process) {
+        process->kill();
     }
 }
 
+// scan for overlay procs just in case
 QList<pid_t> OverlayProcess::findOverlayProcesses()
 {
     QList<pid_t> found;
@@ -109,32 +127,34 @@ QList<pid_t> OverlayProcess::findOverlayProcesses()
     for (const QString &entry : entries) {
         bool ok = false;
         pid_t pid = entry.toInt(&ok);
-        if (!ok) continue;
+        if (!ok)
+            continue;
 
         QString cmdlinePath = "/proc/" + entry + "/cmdline";
         QFile f(cmdlinePath);
+
         if (!f.open(QIODevice::ReadOnly))
             continue;
 
         QByteArray raw = f.readAll();
-        QString cmd = QString::fromUtf8(raw).replace('\0', ' ').trimmed();
+        QString cmdline = QString::fromUtf8(raw).replace('\0', ' ');
 
-        if (cmd.contains("gsr-qt-overlay")) {
+        if (cmdline.contains("gsr-qt-overlay"))
             found << pid;
-        }
     }
 
     return found;
 }
 
-void OverlayProcess::onStdOut() 
+// handle output
+void OverlayProcess::onStdOut()
 {
-    QByteArray output = process->readAllStandardOutput();
-    std::cout << "overlay stdout: " << output.toStdString();
+    std::cout << "overlay stdout: "
+              << process->readAllStandardOutput().toStdString();
 }
 
-void OverlayProcess::onStdErr() 
+void OverlayProcess::onStdErr()
 {
-    QByteArray output = process->readAllStandardError();
-    std::cerr << "overlay stderr: " << output.toStdString();
+    std::cerr << "overlay stderr: "
+              << process->readAllStandardError().toStdString();
 }
