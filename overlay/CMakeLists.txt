@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
         LayerShellQtInterface
         ${XFIXES_LIBRARIES}
         ${X11_LIBRARIES}
+        gsr-qt-settings
 )
 
 qt_add_qml_module(${PROJECT_NAME}

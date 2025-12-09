@@ -9,3 +9,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 add_subdirectory(overlay)
 add_subdirectory(daemon)
+add_subdirectory(settings)

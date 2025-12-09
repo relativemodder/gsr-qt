@@ -48,6 +48,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Widgets
         KF6::GlobalAccel
         ${X11_LIBRARIES}
+        gsr-qt-settings
 )
 
 include(GNUInstallDirs)
