@@ -8,6 +8,7 @@ ShutdownNotifier* ShutdownNotifier::instance()
 }
 
 void ShutdownNotifier::intendedClose() {
+    m_isShuttingDown = true;
     emit startShutdownAnimation();
     m_shutdownTimer->start();
 }
@@ -22,4 +23,8 @@ ShutdownNotifier::ShutdownNotifier(QObject *parent) {
     });
     
     globalShutdownTimer = m_shutdownTimer;
+}
+
+bool ShutdownNotifier::omgImGonnaClose() const {
+    return m_isShuttingDown;
 }

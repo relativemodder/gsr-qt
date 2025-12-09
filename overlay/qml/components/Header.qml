@@ -2,15 +2,46 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import QtQuick.Effects
 
 RowLayout {
     anchors.fill: parent
     Image {
+        id: logoImage
         source: "qrc:/GsrQt/images/gpu_screen_recorder_logo.png"
         Layout.maximumHeight: 40
         Layout.maximumWidth: 40
         fillMode: Image.PreserveAspectFit
         Layout.leftMargin: 15
+
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            brightness: logoImageMouseArea.containsMouse ? 0.3 : 0.0
+            Behavior on brightness {
+                NumberAnimation { 
+                    duration: 100
+                    easing.type: Easing.OutQuad
+                }
+            }
+        }
+
+        ToolTip.visible: logoImageMouseArea.containsMouse
+        ToolTip.text: qsTr("About GPU Screen Recorder")
+        ToolTip.delay: 500
+
+        opacity: logoImageMouseArea.containsPress ? 0.8 : 1.0
+
+        MouseArea {
+            id: logoImageMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+
+            onClicked: {
+                Qt.openUrlExternally("https://git.dec05eba.com/gpu-screen-recorder/about/")
+                shutdownNotifier.intendedClose();
+            }
+        }
     }
     Item {
         Layout.fillWidth: true
@@ -43,6 +74,10 @@ RowLayout {
         onClicked: {
             shutdownNotifier.intendedClose();
         }
+
+        ToolTip.visible: closeButton.hovered
+        ToolTip.text: qsTr("Close")
+        ToolTip.delay: 500
 
         MouseArea {
             anchors.fill: parent

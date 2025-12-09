@@ -170,7 +170,7 @@ ApplicationWindow {
                 Item { Layout.minimumWidth: 35 } // Why tf 35 you may ask? The upper buttons have 70px margins, so half of that.
 
                 Components.SubmenuListView {
-                    Layout.minimumHeight: 230
+                    Layout.minimumHeight: 227
                     listModel: replayListModel
                     menuVisible: submenuState.replay
                     activeSystemPalette: palette
@@ -180,7 +180,7 @@ ApplicationWindow {
                 Item { width: 0 } 
                 
                 Components.SubmenuListView {
-                    Layout.maximumHeight: 140
+                    Layout.maximumHeight: 137
                     Layout.alignment: Qt.AlignTop
                     listModel: recordListModel
                     menuVisible: submenuState.record
@@ -189,7 +189,7 @@ ApplicationWindow {
                 }
 
                 Components.SubmenuListView {
-                    Layout.maximumHeight: 95
+                    Layout.maximumHeight: 92
                     Layout.alignment: Qt.AlignTop
                     listModel: streamListModel
                     menuVisible: submenuState.stream
