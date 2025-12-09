@@ -70,24 +70,24 @@ ApplicationWindow {
     // Data models
     ListModel {
         id: replayListModel
-        ListElement {action: "replay-toggle"; iconName: "media-playback-start"; name: qsTr("Turn On") }
-        ListElement {action: "replay-save"; iconName: "document-save"; name: qsTr("Save") }
-        ListElement {action: "replay-save-1-min"; iconName: "document-save"; name: qsTr("Save 1 min") }
-        ListElement {action: "replay-save-10-min"; iconName: "document-save"; name: qsTr("Save 10 min") }
-        ListElement {action: "replay-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
+        ListElement {action: "replay-toggle"; iconName: "media-playback-start"; name: "Turn On" }
+        ListElement {action: "replay-save"; iconName: "document-save"; name: "Save" }
+        ListElement {action: "replay-save-1-min"; iconName: "document-save"; name: "Save 1 min" }
+        ListElement {action: "replay-save-10-min"; iconName: "document-save"; name: "Save 10 min" }
+        ListElement {action: "replay-settings"; iconName: "settings-configure"; name: "Settings" }
     }
     
     ListModel {
         id: recordListModel
-        ListElement {action: "record-toggle"; iconName: "media-playback-start"; name: qsTr("Start") }
-        ListElement {action: "record-pause"; iconName: "media-playback-pause"; name: qsTr("Pause") }
-        ListElement {action: "record-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
+        ListElement {action: "record-toggle"; iconName: "media-playback-start"; name: "Start" }
+        ListElement {action: "record-pause"; iconName: "media-playback-pause"; name: "Pause" }
+        ListElement {action: "record-settings"; iconName: "settings-configure"; name: "Settings" }
     }
     
     ListModel {
         id: streamListModel
-        ListElement {action: "stream-toggle"; iconName: "media-playback-start"; name: qsTr("Start") }
-        ListElement {action: "stream-settings"; iconName: "settings-configure"; name: qsTr("Settings") }
+        ListElement {action: "stream-toggle"; iconName: "media-playback-start"; name: "Start" }
+        ListElement {action: "stream-settings"; iconName: "settings-configure"; name: "Settings" }
     }
 
     // Dimmer overlay
@@ -167,7 +167,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter 
                 Layout.maximumWidth: 760
 
-                Item { Layout.minimumWidth: 35 } // Why tf 35 you may ask? The upper buttons have 70px margins, so half of that.
+                Item { Layout.minimumWidth: 33 } // Why tf 35 you may ask? The upper buttons have 70px margins, so half of that.
 
                 Components.SubmenuListView {
                     Layout.minimumHeight: 227
@@ -185,7 +185,12 @@ ApplicationWindow {
                     listModel: recordListModel
                     menuVisible: submenuState.record
                     activeSystemPalette: palette
-                    onClicked: (action, icon, name) => submenuState.record = false
+                    onClicked: (action, icon, name) => {
+                        if (action == 'record-toggle') {
+                            recording.toggleRecording(!recording.isActive)
+                        }
+                        submenuState.record = false
+                    }
                 }
 
                 Components.SubmenuListView {

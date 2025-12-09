@@ -26,7 +26,7 @@ Rectangle {
     // Configuration data
     property var buttonConfigs: [
         { type: 'replay', active: false, mainText: qsTr('Instant Replay'), stateText: qsTr('Off'), imageSource: 'qrc:/GsrQt/images/replay.png' },
-        { type: 'record', active: false, mainText: qsTr('Record'), stateText: qsTr('Not recording'), imageSource: 'qrc:/GsrQt/images/record.png' },
+        { type: 'record', active: recording.isActive, mainText: qsTr('Record'), stateText: recording.isActive ? qsTr('Recording') : qsTr('Not recording'), imageSource: 'qrc:/GsrQt/images/record.png' },
         { type: 'stream', active: false, mainText: qsTr('Livestream'), stateText: qsTr('Not streaming'), imageSource: 'qrc:/GsrQt/images/stream.png' }
     ]
 

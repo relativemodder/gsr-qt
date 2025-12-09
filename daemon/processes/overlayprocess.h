@@ -21,6 +21,7 @@ private:
 
     QProcess* process = nullptr;
     bool alreadyTerminating = false;
+    bool lockToggleShow = false;
 
 public slots:
     void onStdOut();

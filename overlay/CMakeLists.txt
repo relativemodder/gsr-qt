@@ -54,6 +54,8 @@ qt_add_qml_module(${PROJECT_NAME}
         backends/shutdownnotifier.cpp
         backends/activewindow.h
         backends/activewindow.cpp
+        backends/recording.h
+        backends/recording.cpp
 
         dbusinterface.h
         dbusinterface.cpp

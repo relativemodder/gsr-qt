@@ -75,6 +75,8 @@ int main(int argc, char *argv[])
     GSRSettings::instance().setOutputDir(GSRSettings::instance().getOutputDir());
     std::cout << "Settings test done.\n";
 
+    DBusInterface::instance()->setupRecordingListening();
+
     Shortcuts::instance()->initGlobalActions();
 
     return a.exec();

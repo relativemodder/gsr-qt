@@ -21,6 +21,14 @@ OverlayProcess* OverlayProcess::instance()
 
 void OverlayProcess::toggleShow()
 {
+    if (lockToggleShow)
+        return;
+
+    lockToggleShow = true;
+    QTimer::singleShot(600, this, [this]() {
+        lockToggleShow = false;
+    });
+
     if (!process) {
         startOverlay();
         return;

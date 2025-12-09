@@ -17,6 +17,7 @@
 #include "x11hacks.h"
 #include <gsrsettings.h>
 #include "backends/activewindow.h"
+#include "backends/recording.h"
 
 void termination_signal_handler(int signum) {
     if (globalShutdownTimer) {
@@ -84,11 +85,13 @@ int main(int argc, char *argv[])
 
     ActiveWindow::instance()->requestWindowTitle();
     ActiveWindow::instance()->subToChangesSignal();
+    RecordingBackend::instance()->subToChangesSignal();
 
     std::cout << "ActiveWindow requested and subbed\n";
 
     engine.rootContext()->setContextProperty(QStringLiteral("shutdownNotifier"), ShutdownNotifier::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());
+    engine.rootContext()->setContextProperty(QStringLiteral("recording"), RecordingBackend::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("settings"), &GSRSettings::instance());
 
     std::cout << "Context properties are set\n";

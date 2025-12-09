@@ -1,4 +1,6 @@
 #include "dbusinterface.h"
+#include "processes/gsrargs.h"
+#include "processes/gsrcli.h"
 #include "processes/overlayprocess.h"
 #include "windowing/activewindow.h"
 #include <iostream>
@@ -61,4 +63,23 @@ void DBusInterface::setActiveWindowFullscreen(bool isFullscreen) {
     ActiveWindow::instance()->setActiveWindowInfo(info);
 
     std::cout << "Set active window fullscreen to: " << (isFullscreen ? "true" : "false") << std::endl;
+}
+
+void DBusInterface::setupRecordingListening() {
+    auto cli = GSRCli::instance();
+    connect(cli, &GSRCli::recordingChanged, this, [this] {
+        emit this->recordingActiveChanged();
+    });
+}
+
+bool DBusInterface::recordingActive() const {
+    return GSRCli::instance()->isRecording();
+}
+
+void DBusInterface::startRecording() {
+    GSRCli::instance()->startRecording();
+}
+
+void DBusInterface::stopRecording() {
+    GSRCli::instance()->stopRecording();
 }

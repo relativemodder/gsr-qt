@@ -28,6 +28,33 @@ Rectangle {
         anchors.fill: parent
     }
 
+    function getButtonName(model) 
+    {
+        if (model.action == "record-toggle") 
+        {
+            return !recording.isActive ? qsTr("Start") : qsTr("Stop")
+        }
+        return qsTr(model.name)
+    }
+
+    function getButtonIcon(model)
+    {
+        if (model.action == "record-toggle") 
+        {
+            return recording.isActive ? "media-playback-stop" : "media-playback-start"
+        }
+        return model.iconName
+    }
+
+    function getButtonEnabled(model)
+    {
+        if (model.action == "record-pause") 
+        {
+            return recording.isActive
+        }
+        return true;
+    }
+
     ListView {
         id: listView
         
@@ -45,18 +72,18 @@ Rectangle {
 
             background: Rectangle {
                 color: ddItem.down ? '#21ffffff' : 'transparent'
-                border.color: ddItem.hovered ? accentColor : 'transparent'
+                border.color: ddItem.hovered && getButtonEnabled(model) ? accentColor : 'transparent'
                 border.width: 2
                 radius: 5
             }
 
             MouseArea {
                 anchors.fill: parent
-                hoverEnabled: true
+                hoverEnabled: getButtonEnabled(model)
                 onClicked: ddItem.clicked()
                 onEntered: ddItem.hoveredChanged()
                 onExited: ddItem.hoveredChanged()
-                cursorShape: Qt.PointingHandCursor
+                cursorShape: getButtonEnabled(model) ? Qt.PointingHandCursor : Qt.ForbiddenCursor
             }
 
             contentItem: RowLayout {
@@ -65,16 +92,18 @@ Rectangle {
 
                 Kirigami.Icon {
                     Layout.leftMargin: 5
-                    source: model.iconName
+                    source: getButtonIcon(model)
                     implicitWidth: 15
                     Layout.alignment: Qt.AlignVCenter
+                    opacity: getButtonEnabled(model) ? 1 : 0.6
                 }
 
                 Text {
                     Layout.alignment: Qt.AlignVCenter
-                    text: qsTr(model.name)
+                    text: getButtonName(model)
                     color: Kirigami.Theme.textColor
                     Layout.fillWidth: true
+                    opacity: getButtonEnabled(model) ? 1 : 0.6
                 }
             }
             

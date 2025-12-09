@@ -4,6 +4,7 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QObject>
+#include "processes/gsrcli.h"
 
 class DBusInterface : public QObject, protected QDBusContext
 {
@@ -20,8 +21,13 @@ public:
     void setConnection(QDBusConnection* conn);
     QDBusConnection* getConnection() const { return connection; }
 
+    void setupRecordingListening();
+
     Q_PROPERTY(QString windowTitle READ getActiveWindowTitle NOTIFY activeWindowTitleChanged);
     QString windowTitle() const;
+
+    Q_PROPERTY(bool recordingActive READ recordingActive NOTIFY recordingActiveChanged);
+    bool recordingActive() const;
 
 public slots:
     void toggleShow();
@@ -30,6 +36,10 @@ public slots:
 
     void setActiveWindowFullscreen(bool isFullscreen);
 
+    void startRecording();
+    void stopRecording();
+
 signals:
     void activeWindowTitleChanged();
+    void recordingActiveChanged();
 };

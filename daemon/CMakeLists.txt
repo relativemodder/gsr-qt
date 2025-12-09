@@ -31,6 +31,11 @@ qt_add_executable(${PROJECT_NAME}
     processes/instanceprocess.h
     processes/instanceprocess.cpp
 
+    processes/gsrcli.h
+    processes/gsrcli.cpp
+    processes/gsrargs.h
+    processes/gsrargs.cpp
+
     actions/toggleshowaction.cpp
     actions/toggleshowaction.h
 
