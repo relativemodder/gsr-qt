@@ -26,6 +26,9 @@ Rectangle {
         
         width: 220
         anchors.fill: parent
+
+        border.color: Kirigami.Theme.backgroundColor
+        border.width: 2
     }
 
     function getButtonName(model) 
@@ -74,7 +77,7 @@ Rectangle {
                 color: ddItem.down ? '#21ffffff' : 'transparent'
                 border.color: ddItem.hovered && getButtonEnabled(model) ? accentColor : 'transparent'
                 border.width: 2
-                radius: 5
+                radius: 3
             }
 
             MouseArea {
@@ -97,17 +100,18 @@ Rectangle {
                 Layout.alignment: Qt.AlignVCenter
 
                 Kirigami.Icon {
-                    Layout.leftMargin: 5
+                    Layout.leftMargin: 8
                     source: getButtonIcon(model)
                     implicitWidth: 15
                     Layout.alignment: Qt.AlignVCenter
-                    opacity: getButtonEnabled(model) ? 1 : 0.6
+                    color: '#ffffff'
+                    opacity: getButtonEnabled(model) ? 0.8 : 0.3
                 }
 
                 Text {
                     Layout.alignment: Qt.AlignVCenter
                     text: getButtonName(model)
-                    color: Kirigami.Theme.textColor
+                    color: 'white'
                     Layout.fillWidth: true
                     opacity: getButtonEnabled(model) ? 1 : 0.6
                 }

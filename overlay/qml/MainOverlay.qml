@@ -176,12 +176,11 @@ ApplicationWindow {
                     activeSystemPalette: palette
                     onClicked: (action, icon, name) => submenuState.replay = false
                 }
-
-                Item { width: 0 } 
                 
                 Components.SubmenuListView {
                     Layout.maximumHeight: 137
                     Layout.alignment: Qt.AlignTop
+                    Layout.leftMargin: 1.5
                     listModel: recordListModel
                     menuVisible: submenuState.record
                     activeSystemPalette: palette
@@ -195,6 +194,7 @@ ApplicationWindow {
 
                 Components.SubmenuListView {
                     Layout.maximumHeight: 92
+                    Layout.leftMargin: 1.5
                     Layout.alignment: Qt.AlignTop
                     listModel: streamListModel
                     menuVisible: submenuState.stream

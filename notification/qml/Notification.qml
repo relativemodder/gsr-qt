@@ -47,7 +47,7 @@ Window {
             anchors.rightMargin: 0
             topLeftRadius: 5
             bottomLeftRadius: 5
-            color: '#000000'
+            color: Kirigami.Theme.backgroundColor
             clip: true
 
             RowLayout {
