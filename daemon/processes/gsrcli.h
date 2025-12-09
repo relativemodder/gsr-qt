@@ -14,6 +14,7 @@ public:
     void startRecording();
     void stopRecording();
     bool isRecording();
+    void toggleRecording();
 
 signals:
     void recordingChanged();

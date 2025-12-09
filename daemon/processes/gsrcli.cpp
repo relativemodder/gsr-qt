@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <iostream>
 #include <qprocess.h>
+#include "../notificationservice.h"
 
 GSRCli::GSRCli(QObject *parent)
     : QObject{parent}
@@ -38,10 +39,15 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::finished,
             this,
-            [this](int, QProcess::ExitStatus) {
+            [this](int code, QProcess::ExitStatus) {
                 std::cerr << "[gsr] finished()\n";
                 this->m_recording = false;
                 emit recordingChanged();
+
+                if (code == 0) 
+                {
+                    NotificationService::instance()->notify("document-save", "Recording saved", NotificationType::NORMAL);
+                }
             });
     connect(recordProcess, &QProcess::readyReadStandardOutput,
     this, [this] {
@@ -52,6 +58,8 @@ void GSRCli::startRecording()
     this, [this] {
         std::cerr << "recordProcess gsr stderr: " << recordProcess->readAllStandardError().toStdString();
     });
+
+    NotificationService::instance()->notify("media-record", "Started recording", NotificationType::NORMAL);
 
     m_recording = true;
     emit recordingChanged();
@@ -67,6 +75,18 @@ void GSRCli::stopRecording()
     kill(recordProcess->processId(), SIGINT);
 }
 
-bool GSRCli::isRecording() {
+void GSRCli::toggleRecording()
+{
+    if (isRecording()) 
+    {
+        stopRecording();
+        return;
+    }
+
+    startRecording();
+}
+
+bool GSRCli::isRecording() 
+{
     return m_recording;
 }

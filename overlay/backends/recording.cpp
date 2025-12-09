@@ -3,6 +3,7 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <iostream>
+#include "backends/shutdownnotifier.h"
 
 RecordingBackend::RecordingBackend(QObject *parent)
     : QObject{parent}

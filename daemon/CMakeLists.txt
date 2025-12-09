@@ -25,6 +25,9 @@ qt_add_executable(${PROJECT_NAME}
     dbusinterface.h
     dbusinterface.cpp
 
+    notificationservice.h
+    notificationservice.cpp
+
     processes/overlayprocess.h
     processes/overlayprocess.cpp
 
@@ -38,6 +41,9 @@ qt_add_executable(${PROJECT_NAME}
 
     actions/toggleshowaction.cpp
     actions/toggleshowaction.h
+
+    actions/togglerecordaction.h
+    actions/togglerecordaction.cpp
 
     windowing/x11fs.h
     windowing/x11fs.cpp

@@ -3,6 +3,7 @@
 #include <QAction>
 #include <QProcess>
 #include "actions/toggleshowaction.h"
+#include "actions/togglerecordaction.h"
 
 class Shortcuts : public QObject 
 {
@@ -15,9 +16,10 @@ public:
     void initGlobalActions();
 
 private:
-    
     ToggleShowAction* toggleShow;
+    ToggleRecordAction* toggleRecord;
 
 public slots:
     void onToggleShowShortcutTriggered();
+    void onToggleRecordShortcutTriggered();
 };
