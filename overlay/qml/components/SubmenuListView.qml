@@ -26,9 +26,6 @@ Rectangle {
         
         width: 220
         anchors.fill: parent
-
-        border.color: Kirigami.Theme.backgroundColor
-        border.width: 2
     }
 
     function getButtonName(model) 
