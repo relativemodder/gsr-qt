@@ -42,8 +42,10 @@ void install_signal_handler() {
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    std::cout << "Created QGuiApplication\n";
 
     auto connection = QDBusConnection::sessionBus();
+    qDebug() << "DBus connection: " << connection.isConnected();
 
     if (!connection.isConnected()) {
         std::cerr << "Cannot connect to the D-Bus session bus.\n"
@@ -52,23 +54,42 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    qDebug() << "Checked connection";
+
     if (!connection.registerService(OVERLAY_APP_ID)) {
-        qWarning("%s\n", qPrintable(connection.lastError().message()));
-        exit(1);
+        auto qwerr = connection.lastError();
+        auto qwr = qwerr.message();
+        std::cerr << "Error registering service: " << qwerr.type() << std::endl;
+        
+        connection.unregisterService(OVERLAY_APP_ID);
+        connection.registerService(OVERLAY_APP_ID);
     }
+
+    qDebug() << "Registered service";
     
     DBusInterface::instance()->setConnection(&connection);
+    qDebug() << "Connection set in DBusInterface";
+
     connection.registerObject("/", DBusInterface::instance(), QDBusConnection::ExportAllSlots);
+    std::cout << "Connected to D-Bus\n";
 
     install_signal_handler();
 
+    std::cout << "Signal handler is on\n";
+
     QQmlApplicationEngine engine;
+
+    std::cout << "QQmlApplicationEngine created\n";
 
     ActiveWindow::instance()->requestWindowTitle();
     ActiveWindow::instance()->subToChangesSignal();
 
+    std::cout << "ActiveWindow requested and subbed\n";
+
     engine.rootContext()->setContextProperty(QStringLiteral("shutdownNotifier"), ShutdownNotifier::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());
+
+    std::cout << "Context properties are set\n";
 
     QObject::connect(
         &engine,
@@ -79,6 +100,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [](QObject *obj, const QUrl &objUrl) {
+
+        std::cout << "Creating a window\n";
             
         QQuickWindow *window = qobject_cast<QQuickWindow*>(obj);
 
@@ -93,9 +116,9 @@ int main(int argc, char *argv[])
         
     }, Qt::QueuedConnection);
 
-    engine.loadFromModule("GsrQt", "MainOverlay");
+    std::cout << "Loading MainOverlay\n";
 
-    std::cout << "ok window created\n";
+    engine.loadFromModule("GsrQt", "MainOverlay");
 
     return app.exec();
 }

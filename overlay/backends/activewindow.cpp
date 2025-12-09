@@ -47,9 +47,7 @@ void ActiveWindow::subToChangesSignal()
 {
     auto connection = DBusInterface::instance()->getConnection();
     connection->connect(
-        APP_ID,
-        "/",
-        APP_ID,
+        APP_ID, "/", APP_ID,
         "activeWindowTitleChanged",
         this,
         SLOT(onActiveWindowTitleChanged())

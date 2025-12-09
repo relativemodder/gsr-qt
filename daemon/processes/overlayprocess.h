@@ -12,9 +12,12 @@ public:
     static OverlayProcess* instance();
 
     void toggleShow();
+    QList<pid_t> findOverlayProcesses();
+    void overkill();
 
 private:
     QProcess* process = nullptr;
+    bool alreadyTerminating = false;
 
 public slots:
     void onStdOut();

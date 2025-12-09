@@ -1,57 +1,58 @@
-// call our daddy daemon to inform about new active window title
+const DAEMON_DBUS_NAME = "com.github.relative.gsrqt";
+
+// utils
 function sendNewActiveWindowTitle(title) {
     callDBus(
-        "com.github.relative.gsrqt", "/",
-        "com.github.relative.gsrqt",
+        DAEMON_DBUS_NAME, "/", DAEMON_DBUS_NAME,
         "setActiveWindowTitle", title
     );
 }
 
 function sendNewActiveWindowFullscreen(isFullscreen) {
     callDBus(
-        "com.github.relative.gsrqt", "/",
-        "com.github.relative.gsrqt",
+        DAEMON_DBUS_NAME, "/", DAEMON_DBUS_NAME,
         "setActiveWindowFullscreen", isFullscreen
     );
 }
 
-// don't track multiple windows' captions unnecessarily, map is ideal here
-const captionHandlers = new Map();
+// track handlers to avoid duplicates
+const windowEventHandlers = new Map();
 
+function subscribeToClient(client) {
+    if (!client || windowEventHandlers.has(client)) return;
 
-function subToChanges(client) {
-    if (!client) return;
-    if (captionHandlers.has(client)) return; // already tracking
-
-    const handler = () => {
+    const emitActiveTitle = () => {
         if (workspace.activeWindow === client) {
             sendNewActiveWindowTitle(client.caption || "");
         }
     };
 
-    const fsHandler = () => {
+    const emitActiveFullscreen = () => {
         if (workspace.activeWindow === client) {
             sendNewActiveWindowFullscreen(client.fullScreen);
         }
-    }
+    };
 
-    captionHandlers.set(client, handler);
-    client.captionChanged.connect(handler);
-    client.fullScreenChanged.connect(fsHandler);
+    windowEventHandlers.set(client, {
+        title: emitActiveTitle,
+        fs: emitActiveFullscreen,
+    });
+
+    client.captionChanged.connect(emitActiveTitle);
+    client.fullScreenChanged.connect(emitActiveFullscreen);
 }
 
-// on every focus
-workspace.windowActivated.connect((client) => {
+function updateActiveWindow(client) {
     if (!client) return;
-
     sendNewActiveWindowTitle(client.caption || "");
     sendNewActiveWindowFullscreen(client.fullScreen);
-    subToChanges(client);
-});
+    subscribeToClient(client);
+}
 
-// on script load, send current active window title, just in case
+// handle window focus changes
+workspace.windowActivated.connect(updateActiveWindow);
+
+// handle initial state
 if (workspace.activeWindow) {
-    sendNewActiveWindowTitle(workspace.activeWindow.caption || "");
-    sendNewActiveWindowFullscreen(workspace.activeWindow.fullScreen);
-    subToChanges(workspace.activeWindow);
+    updateActiveWindow(workspace.activeWindow);
 }
