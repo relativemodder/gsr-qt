@@ -2,7 +2,7 @@
 
 Shadowplay-like overlay for [GPU Screen Recorder](https://git.dec05eba.com/gpu-screen-recorder/) by dec05eba.
 
-<img src="/assets/thumbnail.png">
+<img src="/assets/screenshot.png">
 
 Made in C++/QML.
 
