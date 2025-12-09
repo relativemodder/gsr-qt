@@ -26,7 +26,7 @@ void GSRCli::startRecording()
     GSRArgs argsBuilder;
     argsBuilder.setWindowTarget("screen");
     argsBuilder.setFrameRate(60);
-    argsBuilder.addAudioSource("default_output|alsa_input.pci-0000_03_00.6.analog-stereo");
+    argsBuilder.addAudioSource("default_output|default_input");
     argsBuilder.setOutputFile(GSRSettings::instance().getOutputDir() + "/testvideo.mp4");
 
     QStringList args;
@@ -43,6 +43,15 @@ void GSRCli::startRecording()
                 this->m_recording = false;
                 emit recordingChanged();
             });
+    connect(recordProcess, &QProcess::readyReadStandardOutput,
+    this, [this] {
+        std::cout << "recordProcess gsr output: " << recordProcess->readAllStandardOutput().toStdString();
+    });
+
+    connect(recordProcess, &QProcess::readyReadStandardError,
+    this, [this] {
+        std::cerr << "recordProcess gsr stderr: " << recordProcess->readAllStandardError().toStdString();
+    });
 
     m_recording = true;
     emit recordingChanged();
