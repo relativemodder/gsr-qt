@@ -17,10 +17,11 @@ public:
     }
 
     static constexpr const char* OUTPUT_DIR_KEY = "output/directory";
-    
+
     QString getOutputDir() const;
     void setOutputDir(const QString& path);
     Q_INVOKABLE void resetOutputDir();
+    Q_INVOKABLE QString getDefaultOutputDirPath() const;
 
 signals:
     void outputDirectoryChanged();
@@ -28,9 +29,13 @@ signals:
 private:
     GSRSettings(QObject* parent = nullptr);
     ~GSRSettings() override = default;
-    
+
+    GSRSettings(const GSRSettings&) = delete;
+    GSRSettings& operator=(const GSRSettings&) = delete;
+    GSRSettings(GSRSettings&&) = delete;
+    GSRSettings& operator=(GSRSettings&&) = delete;
+
     QString calculateDefaultOutputDir() const;
 
     QSettings m_settings;
 };
-
