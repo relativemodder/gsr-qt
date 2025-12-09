@@ -41,6 +41,9 @@ void install_signal_handler() {
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setOrganizationName("Relative");
+    QCoreApplication::setApplicationName("gsr-qt");
+
     QGuiApplication app(argc, argv);
     std::cout << "Created QGuiApplication\n";
 
