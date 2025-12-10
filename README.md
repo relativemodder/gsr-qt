@@ -28,7 +28,7 @@ cmake --build . -- -j 8
 
 ```bash
 cd build
-export PATH=$(pwd)/overlay
+export PATH=$(pwd)/overlay:$(pwd)/notification:$PATH
 
 ./bin/gsr-qt-daemon-service # Only tested on KDE Plasma, idk how KGlobalAccel works on other DEs
 ```
