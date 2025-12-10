@@ -12,6 +12,7 @@ Button {
     property alias buttonImageSource: buttonImage.source
 
     MouseArea {
+        id: smallIconButtonArea
         anchors.fill: parent
         hoverEnabled: true
         onClicked: smallIconButton.clicked()
@@ -21,7 +22,7 @@ Button {
     }
 
     background: Rectangle {
-        color: smallIconButton.hovered ? 'black' : 'transparent'
+        color: smallIconButtonArea.containsPress ? '#232323' : (smallIconButton.hovered ? 'black' : 'transparent')
         border.color: smallIconButton.hovered ? smallIconButton.accentColor : 'transparent'
         border.width: 2
         radius: 5

@@ -55,6 +55,10 @@ Rectangle {
         return true;
     }
 
+    function makeTransparent(color, alphaPercent) {
+        return Qt.rgba(color.r, color.g, color.b, alphaPercent)
+    }  
+
     ListView {
         id: listView
         
@@ -71,13 +75,21 @@ Rectangle {
             readonly property color accentColor: activeSystemPalette ? activeSystemPalette.accent : Kirigami.Theme.highlightColor
 
             background: Rectangle {
-                color: ddItem.down ? '#21ffffff' : 'transparent'
-                border.color: ddItem.hovered && getButtonEnabled(model) ? accentColor : 'transparent'
+                color: ddItemArea.containsPress ? '#21ffffff' : 'transparent'
+                border.color: (ddItemArea.containsPress 
+                    ? accentColor 
+                    : (
+                        ddItem.hovered && getButtonEnabled(model) 
+                        ? '#414141'
+                        : 'transparent'
+                    )
+                )
                 border.width: 2
                 radius: 3
             }
 
             MouseArea {
+                id: ddItemArea
                 anchors.fill: parent
                 hoverEnabled: getButtonEnabled(model)
                 onClicked: {
@@ -87,6 +99,8 @@ Rectangle {
                     } 
                     ddItem.clicked()
                 }
+                onPressed: ddItem.pressedChanged()
+                onReleased: ddItem.pressedChanged()
                 onEntered: ddItem.hoveredChanged()
                 onExited: ddItem.hoveredChanged()
                 cursorShape: getButtonEnabled(model) ? Qt.PointingHandCursor : Qt.ForbiddenCursor
@@ -102,7 +116,7 @@ Rectangle {
                     implicitWidth: 15
                     Layout.alignment: Qt.AlignVCenter
                     color: '#ffffff'
-                    opacity: getButtonEnabled(model) ? 0.8 : 0.3
+                    opacity: getButtonEnabled(model) ? 1 : 0.6
                 }
 
                 Text {

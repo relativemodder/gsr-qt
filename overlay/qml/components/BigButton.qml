@@ -17,6 +17,7 @@ Button {
     property double imageSize: 100
 
     MouseArea {
+        id: bigButtonArea
         anchors.fill: parent
         hoverEnabled: true
         onClicked: bigButton.clicked()
@@ -26,7 +27,7 @@ Button {
     }
 
     background: Rectangle {
-        color: bigButton.hovered || bigButton.stillHovered ? 'black' : 'transparent'
+        color: bigButtonArea.containsPress ? '#232323' : (bigButton.hovered || bigButton.stillHovered ? 'black' : 'transparent')
         border.color: bigButton.hovered || bigButton.stillHovered ? bigButton.accentColor : 'transparent'
         border.width: 2
         radius: 5
