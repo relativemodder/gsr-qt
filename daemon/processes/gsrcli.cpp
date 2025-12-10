@@ -30,8 +30,10 @@ void GSRCli::startRecording()
         return;
     }
 
+    auto& settings = GSRSettings::instance();
+
     auto fileName = generateFileName();
-    auto firstStagePath = GSRSettings::instance().getOutputDir() + "/" + fileName;
+    auto firstStagePath = settings.get_recordOutputDirectory() + "/" + fileName;
 
     GSRArgs argsBuilder;
     argsBuilder.setWindowTarget("screen");
@@ -48,7 +50,7 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::finished,
             this,
-            [this, fileName, firstStagePath](int code, QProcess::ExitStatus) {
+            [this, fileName, firstStagePath, &settings](int code, QProcess::ExitStatus) {
                 std::cerr << "[gsr] finished()\n";
                 this->m_recording = false;
                 emit recordingChanged();
@@ -60,10 +62,10 @@ void GSRCli::startRecording()
 
                 NotificationService::instance()->notify("document-save", "Recording saved", NotificationType::NORMAL);
 
-                if (GSRSettings::instance().getCategorizeByTitle())
+                if (settings.get_recordCategorizeByTitle())
                 {
                     auto currentWindowTitle = ActiveWindow::instance()->info().title.replace('/', '_');
-                    auto categorizedDir = GSRSettings::instance().getOutputDir() + "/" + currentWindowTitle;
+                    auto categorizedDir = settings.get_recordOutputDirectory() + "/" + currentWindowTitle;
 
                     if (!QDir(categorizedDir).exists()) {
                         QDir().mkdir(categorizedDir);

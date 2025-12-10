@@ -36,12 +36,15 @@ qt_add_qml_module(${PROJECT_NAME}
     VERSION 1.0
     QML_FILES 
         qml/MainOverlay.qml
+
         qml/components/Header.qml
         qml/components/BigButton.qml
         qml/components/SmallIconButton.qml
         qml/components/MainButtonRow.qml
         qml/components/SmallSideButtonsColumn.qml
         qml/components/SubmenuListView.qml
+
+        qml/dialogs/RecordSettingsDialog.qml
     RESOURCES 
         images/gpu_screen_recorder_logo.png
         images/record.png

@@ -57,6 +57,8 @@ int main(int argc, char *argv[])
 
     InstanceProcess::instance()->subToSigUsr1();
 
+    GSRSettings::instance(); // init ig?
+
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     auto currentDesktop = env.value("XDG_SESSION_DESKTOP", "wtf");
 
@@ -70,10 +72,6 @@ int main(int argc, char *argv[])
     else {
         ActiveWindow::instance()->applyKWinHacks();
     }
-
-    std::cout << "Settings test. Output dir: " << GSRSettings::instance().getOutputDir().toStdString() << std::endl;
-    GSRSettings::instance().setOutputDir(GSRSettings::instance().getOutputDir());
-    std::cout << "Settings test done.\n";
 
     DBusInterface::instance()->setupRecordingListening();
 

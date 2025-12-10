@@ -27,12 +27,10 @@ void DBusInterface::setConnection(QDBusConnection* conn)
 
 void DBusInterface::setActiveWindowTitle(QString title) {
     if (title.isEmpty()) {
-        std::cerr << "Received empty title, ignoring.\n";
         return;
     }
 
     if (title == "GPU Screen Recorder Overlay") {
-        std::cerr << "Received overlay title, ignoring.\n";
         return;
     }
 

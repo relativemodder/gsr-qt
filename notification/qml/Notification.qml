@@ -15,7 +15,7 @@ Window {
     property int readSpeed: backendReadSpeed
     property string notificationType: backendNotificationType
 
-    width: notificationText.paintedWidth + 150
+    width: Math.min(Math.max(notificationText.paintedWidth + 100, 300), 1200)
     height: Math.max(120, notificationText.paintedHeight + 40)
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop | LayerShell.Window.AnchorRight
@@ -68,7 +68,7 @@ Window {
                     width: 64
                     height: 64
                     opacity: 0
-                    Layout.leftMargin: 30
+                    Layout.leftMargin: 15
                     Layout.alignment: Qt.AlignVCenter
                 }
 
@@ -78,7 +78,7 @@ Window {
                     color: Kirigami.Theme.textColor
                     wrapMode: Text.WordWrap
                     Layout.alignment: Qt.AlignVCenter
-                    Layout.leftMargin: 20
+                    Layout.leftMargin: 15
                     Layout.rightMargin: 20
                     Layout.minimumWidth: 200
                     Layout.maximumWidth: 700

@@ -2,47 +2,68 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QVariantMap>
 #include <QStandardPaths>
-#include <QString>
+#include <QDir>
+
+// Macro to generate property with getter, setter, default, and reset (holy shit C++)
+#define SETTING_PROPERTY(Type, name, key, defaultValue) \
+    Q_PROPERTY(Type name READ get_##name WRITE set_##name NOTIFY name##Changed) \
+public: \
+    Type get_##name() const { return getSetting(key, defaultValue).value<Type>(); } \
+    void set_##name(const Type& val) { setSetting(key, val, #name "Changed"); } \
+    Q_INVOKABLE Type getDefault_##name() const { return defaultValue; } \
+    Q_INVOKABLE void reset_##name() { resetSetting(key, #name "Changed"); } \
+private: \
+    Q_SIGNAL void name##Changed();
+
 
 class GSRSettings : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(QString outputDirectory READ getOutputDir WRITE setOutputDir NOTIFY outputDirectoryChanged FINAL)
-    Q_PROPERTY(bool categorizeByTitle READ getCategorizeByTitle WRITE setCategorizeByTitle NOTIFY categorizeByTitleChanged FINAL)
-
+    // Record settings
+    SETTING_PROPERTY(QString, recordOutputDirectory, "record/output_directory", getDefaultOutputDir())
+    SETTING_PROPERTY(bool, recordCategorizeByTitle, "record/categorize_by_title", true)
+    
 public:
     static GSRSettings& instance() {
-        static GSRSettings INSTANCE;
-        return INSTANCE;
+        static GSRSettings inst;
+        return inst;
     }
 
-    static constexpr const char* OUTPUT_DIR_KEY = "output/directory";
-    static constexpr const char* CATEGORIZE_BY_TITLE_KEY = "output/categorize_by_title";
+    // Get all settings for a category
+    Q_INVOKABLE QVariantMap getReplaySettings() const { return getCategorySettings("replay"); }
+    Q_INVOKABLE QVariantMap getRecordSettings() const { return getCategorySettings("record"); }
+    Q_INVOKABLE QVariantMap getStreamSettings() const { return getCategorySettings("stream"); }
 
-    QString getOutputDir() const;
-    void setOutputDir(const QString& path);
-    Q_INVOKABLE void resetOutputDir();
-    Q_INVOKABLE QString getDefaultOutputDirPath() const;
-
-    bool getCategorizeByTitle() const;
-    void setCategorizeByTitle(bool);
-    Q_INVOKABLE bool getDefaultCategorizeByTitle() const;
+    // Reset entire category
+    Q_INVOKABLE void resetReplaySettings() { resetCategory("replay"); }
+    Q_INVOKABLE void resetRecordSettings() { resetCategory("record"); }
+    Q_INVOKABLE void resetStreamSettings() { resetCategory("stream"); }
+    Q_INVOKABLE void resetAllSettings() {
+        m_settings.clear();
+        initializeDefaults();
+        m_settings.sync();
+        emit settingsReset();
+    }
 
 signals:
-    void outputDirectoryChanged();
-    void categorizeByTitleChanged();
+    void settingsReset();
 
 private:
     GSRSettings(QObject* parent = nullptr);
     ~GSRSettings() override = default;
-
     GSRSettings(const GSRSettings&) = delete;
     GSRSettings& operator=(const GSRSettings&) = delete;
-    GSRSettings(GSRSettings&&) = delete;
-    GSRSettings& operator=(GSRSettings&&) = delete;
 
-    QString calculateDefaultOutputDir() const;
+    void initializeDefaults();
+    QString getDefaultOutputDir() const;
+    
+    QVariant getSetting(const QString& key, const QVariant& defaultValue) const;
+    void setSetting(const QString& key, const QVariant& value, const char* signalName);
+    void resetSetting(const QString& key, const char* signalName);
+    QVariantMap getCategorySettings(const QString& category) const;
+    void resetCategory(const QString& category);
 
-    QSettings m_settings;
+    mutable QSettings m_settings;
 };

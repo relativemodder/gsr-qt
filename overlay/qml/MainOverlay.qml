@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Dialogs
 import "./components" as Components
+import "./dialogs" as Dialogs
 import org.kde.kirigami as Kirigami
 import org.kde.layershell 1.0 as LayerShell
 
@@ -65,6 +66,10 @@ ApplicationWindow {
                 shutdownNotifier.intendedClose()
             }
         }
+    }
+
+    Dialogs.RecordSettingsDialog {
+        id: recordSettingsDialog
     }
 
     // Data models
@@ -188,6 +193,9 @@ ApplicationWindow {
                         if (action == 'record-toggle') {
                             recording.toggleRecording(!recording.isActive)
                         }
+                        if (action == 'record-settings') {
+                            recordSettingsDialog.open()
+                        }
                         submenuState.record = false
                     }
                 }
@@ -267,6 +275,7 @@ ApplicationWindow {
     Connections {
         target: shutdownNotifier
         function onStartShutdownAnimation() {
+            recordSettingsDialog.close()
             closeAnimation.start()
         }
     }

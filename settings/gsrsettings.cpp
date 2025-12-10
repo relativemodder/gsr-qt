@@ -1,90 +1,84 @@
 #include "gsrsettings.h"
-#include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 
 GSRSettings::GSRSettings(QObject* parent)
-    : QObject(parent),
-      m_settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) +
-                 QLatin1String("/gsr-qt/settings.ini"),
-                 QSettings::IniFormat)
+    : QObject(parent)
+    , m_settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) +
+                 "/gsr-qt/settings.ini", QSettings::IniFormat)
 {
     qDebug() << "Settings file path:" << m_settings.fileName();
+    initializeDefaults();
 }
 
+void GSRSettings::initializeDefaults() {
+    auto writeDefault = [this](const QString& key, const QVariant& val) {
+        if (!m_settings.contains(key)) {
+            m_settings.setValue(key, val);
+        }
+    };
 
-// defaultOutputDirPath
-QString GSRSettings::calculateDefaultOutputDir() const {
+    // Record
+    writeDefault("record/output_directory", getDefaultOutputDir());
+    writeDefault("record/categorize_by_title", true);
+
+    m_settings.sync();
+}
+
+QString GSRSettings::getDefaultOutputDir() const {
     QString videosDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
-
     if (videosDir.isEmpty()) {
         videosDir = QDir::homePath() + "/Videos";
     }
-
-    return QDir(videosDir).filePath("Screencasts");
+    QString path = QDir(videosDir).filePath("Screencasts");
+    QDir().mkpath(path);
+    return path;
 }
 
-QString GSRSettings::getDefaultOutputDirPath() const {
-    return calculateDefaultOutputDir();
+QVariant GSRSettings::getSetting(const QString& key, const QVariant& defaultValue) const {
+    m_settings.sync();
+    return m_settings.value(key, defaultValue);
 }
 
-QString GSRSettings::getOutputDir() const {
-    QString configuredPath = m_settings.value(OUTPUT_DIR_KEY).toString();
-
-    if (!configuredPath.isEmpty() && QFileInfo::exists(configuredPath)) {
-        return configuredPath;
-    }
-
-    QString defaultPath = calculateDefaultOutputDir();
-
-    QDir dir;
-    if (!dir.mkpath(defaultPath)) {
-        qWarning() << "Could not create default output directory:" << defaultPath;
-    }
-
-    return defaultPath;
-}
-
-void GSRSettings::setOutputDir(const QString& path) {
-    QString currentPath = getOutputDir();
-    
-    QString savedValue = m_settings.value(OUTPUT_DIR_KEY).toString();
-
-    if (savedValue != path) {
-        m_settings.setValue(OUTPUT_DIR_KEY, path);
+void GSRSettings::setSetting(const QString& key, const QVariant& value, const char* signalName) {
+    if (m_settings.value(key) != value) {
+        m_settings.setValue(key, value);
         m_settings.sync();
-        qDebug() << "Output directory set to:" << path;
         
-        emit outputDirectoryChanged();
+        int idx = metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalName));
+        if (idx != -1) {
+            QMetaObject::activate(this, metaObject(), idx, nullptr);
+        }
     }
 }
 
-void GSRSettings::resetOutputDir() {
-    if (m_settings.contains(OUTPUT_DIR_KEY)) {
-        m_settings.remove(OUTPUT_DIR_KEY);
+void GSRSettings::resetSetting(const QString& key, const char* signalName) {
+    if (m_settings.contains(key)) {
+        m_settings.remove(key);
         m_settings.sync();
-        qDebug() << "Output directory setting removed. Default will be used.";
         
-        emit outputDirectoryChanged();
+        int idx = metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalName));
+        if (idx != -1) {
+            QMetaObject::activate(this, metaObject(), idx, nullptr);
+        }
     }
 }
 
-
-// categorizeByTitle
-bool GSRSettings::getCategorizeByTitle() const {
-    return m_settings.value(CATEGORIZE_BY_TITLE_KEY, getDefaultCategorizeByTitle()).toBool();
-}
-
-void GSRSettings::setCategorizeByTitle(bool value) {
-    bool currentValue = getCategorizeByTitle();
-    if (currentValue != value) {
-        m_settings.setValue(CATEGORIZE_BY_TITLE_KEY, value);
-        m_settings.sync();
-        qDebug() << "Categorize by title set to:" << value;
-        emit categorizeByTitleChanged();
+QVariantMap GSRSettings::getCategorySettings(const QString& category) const {
+    QVariantMap result;
+    m_settings.beginGroup(category);
+    const QStringList keys = m_settings.allKeys();
+    for (const QString& key : keys) {
+        result[key] = m_settings.value(key);
     }
+    m_settings.endGroup();
+    return result;
 }
 
-bool GSRSettings::getDefaultCategorizeByTitle() const {
-    return true;
+void GSRSettings::resetCategory(const QString& category) {
+    m_settings.beginGroup(category);
+    m_settings.remove("");
+    m_settings.endGroup();
+    initializeDefaults();
+    m_settings.sync();
+    emit settingsReset();
 }
