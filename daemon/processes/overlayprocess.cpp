@@ -79,8 +79,10 @@ void OverlayProcess::startOverlay()
 
     bool useXcb = ((isX11Fullscreen || isFsInDE) && !isHyprland);
 
-    if (useXcb)
+    if (useXcb) 
+    {
         env.insert("QT_QPA_PLATFORM", "xcb");
+    }
 
     process->setProcessEnvironment(env);
 

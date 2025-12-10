@@ -9,6 +9,7 @@
 #include "backends/shutdownnotifier.h"
 #include <qcoreapplication.h>
 #include <qdbusinterface.h>
+#include <qtenvironmentvariables.h>
 #include <unistd.h>
 #include <QDBusConnection>
 #include <QDBusError>
@@ -18,6 +19,7 @@
 #include <gsrsettings.h>
 #include "backends/activewindow.h"
 #include "backends/recording.h"
+#include <LayerShellQt/window.h>
 
 void termination_signal_handler(int signum) {
     if (globalShutdownTimer) {

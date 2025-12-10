@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QAction>
 #include <QProcess>
+#include <QString>
 
 class GSRCli : public QObject 
 {
@@ -15,6 +16,7 @@ public:
     void stopRecording();
     bool isRecording();
     void toggleRecording();
+    QString generateFileName();
 
 signals:
     void recordingChanged();

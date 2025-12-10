@@ -4,6 +4,7 @@
 #include <gsrsettings.h>
 #include <QStringList>
 #include <iostream>
+#include <qcontainerfwd.h>
 #include <qprocess.h>
 #include "../notificationservice.h"
 
@@ -63,6 +64,13 @@ void GSRCli::startRecording()
 
     m_recording = true;
     emit recordingChanged();
+}
+
+QString GSRCli::generateFileName()
+{
+    QString filenameBuilder;
+    filenameBuilder.append("Video_");
+    
 }
 
 void GSRCli::stopRecording()
