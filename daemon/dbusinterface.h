@@ -14,6 +14,7 @@ class DBusInterface : public QObject, protected QDBusContext
 
 private:
     QDBusConnection* connection;
+    QList<QString> cachedCaptureOptions;
 
 public:
     explicit DBusInterface(QObject *parent = nullptr);

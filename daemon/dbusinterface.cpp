@@ -79,14 +79,19 @@ void DBusInterface::stopRecording() {
 }
 
 QList<QString> DBusInterface::getCaptureOptions() {
-    QList<QString> options;
+    if (!cachedCaptureOptions.empty()) {
+        return cachedCaptureOptions;
+    }
+    cachedCaptureOptions = {};
+
     for (auto option : GSRCli::instance()->getCaptureOptions()) 
     {
         QString opt = option.name;
         if (option.resolution.has_value()) {
             opt.append("|" + option.resolution.value());
         }
-        options.append(opt);
+        cachedCaptureOptions.append(opt);
     }
-    return options;
+    
+    return cachedCaptureOptions;
 }
