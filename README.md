@@ -27,14 +27,22 @@ cmake --build . -- -j 8
 ## How to run
 
 ```bash
-cd build
-export PATH=$(pwd)/overlay:$(pwd)/notification:$PATH
-
-./bin/gsr-qt-daemon-service # Only tested on KDE Plasma, idk how KGlobalAccel works on other DEs
+sudo ./install.sh
+gsr-qt-daemon-service # Only tested on KDE Plasma, idk how KGlobalAccel works on other DEs
 ```
 
-### Run only GUI, without daemon
+### Toggle the overlay
+Press ALT+Z, if you're on KDE Plasma (check out plasmasettings -> Keyboard -> Shortcuts)
+
+
 ```bash
-cd build/overlay
-./gsr-qt-overlay
+killall -s 10 gsr-qt-daemon-service # signal way
+
+...
+
+/usr/lib/qt6/bin/qdbus com.github.relative.gsrqt / com.github.relative.gsrqt.toggleShow # DBus way
+
+...
+
+gsr-qt-daemon-service # it just sends the signal
 ```
