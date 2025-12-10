@@ -31,6 +31,9 @@ public:
     Q_PROPERTY(bool recordingActive READ recordingActive NOTIFY recordingActiveChanged);
     bool recordingActive() const;
 
+    Q_PROPERTY(bool recordingPaused READ recordingPaused NOTIFY recordingPausedChanged);
+    bool recordingPaused() const;
+
 public slots:
     void toggleShow();
     void setActiveWindowTitle(QString title);
@@ -40,10 +43,12 @@ public slots:
 
     void startRecording();
     void stopRecording();
+    void toggleRecordingPause();
 
     QList<QString> getCaptureOptions();
 
 signals:
     void activeWindowTitleChanged();
     void recordingActiveChanged();
+    void recordingPausedChanged();
 };

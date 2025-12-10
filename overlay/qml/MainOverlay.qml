@@ -193,6 +193,9 @@ ApplicationWindow {
                         if (action == 'record-toggle') {
                             recording.toggleRecording(!recording.isActive)
                         }
+                        if (action == 'record-pause') {
+                            recording.togglePause()
+                        }
                         if (action == 'record-settings') {
                             recordSettingsDialog.open()
                         }

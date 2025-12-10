@@ -45,6 +45,9 @@ qt_add_executable(${PROJECT_NAME}
     actions/togglerecordaction.h
     actions/togglerecordaction.cpp
 
+    actions/togglerecordpauseaction.h
+    actions/togglerecordpauseaction.cpp
+
     windowing/x11fs.h
     windowing/x11fs.cpp
 

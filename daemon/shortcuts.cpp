@@ -21,6 +21,9 @@ void Shortcuts::initGlobalActions()
     
     toggleRecord = new ToggleRecordAction();
     connect(toggleRecord, &QAction::triggered, this, &Shortcuts::onToggleRecordShortcutTriggered);
+    
+    toggleRecordPause = new ToggleRecordPauseAction();
+    connect(toggleRecordPause, &QAction::triggered, this, &Shortcuts::onToggleRecordPauseShortcutTriggered);
 }
 
 void Shortcuts::onToggleShowShortcutTriggered() 
@@ -32,4 +35,10 @@ void Shortcuts::onToggleRecordShortcutTriggered()
 {
     auto gsr = GSRCli::instance();
     gsr->toggleRecording();
+}
+
+void Shortcuts::onToggleRecordPauseShortcutTriggered()
+{
+    auto gsr = GSRCli::instance();
+    gsr->toggleRecordingPause();
 }

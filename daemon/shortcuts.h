@@ -4,6 +4,7 @@
 #include <QProcess>
 #include "actions/toggleshowaction.h"
 #include "actions/togglerecordaction.h"
+#include "actions/togglerecordpauseaction.h"
 
 class Shortcuts : public QObject 
 {
@@ -18,8 +19,10 @@ public:
 private:
     ToggleShowAction* toggleShow;
     ToggleRecordAction* toggleRecord;
+    ToggleRecordPauseAction* toggleRecordPause;
 
 public slots:
     void onToggleShowShortcutTriggered();
     void onToggleRecordShortcutTriggered();
+    void onToggleRecordPauseShortcutTriggered();
 };

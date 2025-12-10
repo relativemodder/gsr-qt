@@ -3,6 +3,7 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <iostream>
+#include <qdbuspendingcall.h>
 #include "backends/shutdownnotifier.h"
 
 RecordingBackend::RecordingBackend(QObject *parent)
@@ -26,7 +27,22 @@ bool RecordingBackend::recordingActive()
         return active.toBool();
     }
 
-    std::cerr << "Failed to get active window title from daemon: " << qPrintable(connection->lastError().message()) << "\n";
+    std::cerr << "Failed to get recordingActive from daemon: " << qPrintable(connection->lastError().message()) << "\n";
+    return false;
+}
+
+bool RecordingBackend::recordingPaused() 
+{
+    auto connection = DBusInterface::instance()->getConnection();
+    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
+
+    auto paused = iface.property("recordingPaused");
+
+    if (paused.isValid()) {
+        return paused.toBool();
+    }
+
+    std::cerr << "Failed to get recordingPaused from daemon: " << qPrintable(connection->lastError().message()) << "\n";
     return false;
 }
 
@@ -43,6 +59,14 @@ void RecordingBackend::toggleRecording(bool state)
     }
 }
 
+void RecordingBackend::togglePause() 
+{
+    auto connection = DBusInterface::instance()->getConnection();
+    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
+
+    iface.asyncCall("toggleRecordingPause");
+}
+
 void RecordingBackend::subToChangesSignal()
 {
     auto connection = DBusInterface::instance()->getConnection();
@@ -52,10 +76,20 @@ void RecordingBackend::subToChangesSignal()
         this,
         SLOT(onRecordingActiveChanged())
     );
+    connection->connect(
+        APP_ID, "/", APP_ID,
+        "recordingPausedChanged",
+        this,
+        SLOT(onRecordingPausedChanged())
+    );
 }
 
 void RecordingBackend::onRecordingActiveChanged() {
     emit recordingActiveChanged();
+}
+
+void RecordingBackend::onRecordingPausedChanged() {
+    emit recordingPausedChanged();
 }
 
 QList<QString> RecordingBackend::getCaptureOptions() {

@@ -23,6 +23,8 @@ public:
     void stopRecording();
     bool isRecording();
     void toggleRecording();
+    bool isRecordingPaused();
+    void toggleRecordingPause();
     QString generateFileName();
 
     QList<GSRCaptureOption> getCaptureOptions();
@@ -31,8 +33,10 @@ public:
 
 signals:
     void recordingChanged();
+    void recordingPausedChanged();
 
 private:
     QProcess* recordProcess = nullptr;
     bool m_recording;
+    bool m_recordingPaused;
 };

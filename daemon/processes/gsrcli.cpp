@@ -257,6 +257,8 @@ void GSRCli::stopRecording()
         return;
     }
     m_recording = false;
+    m_recordingPaused = false;
+    emit recordingPausedChanged();
     kill(recordProcess->processId(), SIGINT);
 }
 
@@ -274,4 +276,28 @@ void GSRCli::toggleRecording()
 bool GSRCli::isRecording() 
 {
     return m_recording;
+}
+
+
+bool GSRCli::isRecordingPaused()
+{
+    return m_recordingPaused;
+}
+
+void GSRCli::toggleRecordingPause()
+{
+    if (!isRecording()) 
+    {
+        return;
+    }
+
+    kill(recordProcess->processId(), SIGUSR2);
+    m_recordingPaused = !m_recordingPaused;
+    emit recordingPausedChanged();
+
+    NotificationService::instance()->notify(
+        "media-record", 
+        QStringLiteral("Recording has been ") + (m_recordingPaused ? "paused" : "unpaused"), 
+        NotificationType::NORMAL
+    );
 }

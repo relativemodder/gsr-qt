@@ -34,6 +34,10 @@ Rectangle {
         {
             return !recording.isActive ? qsTr("Start") : qsTr("Stop")
         }
+        if (model.action == "record-pause") 
+        {
+            return !recording.isPaused ? qsTr("Pause") : qsTr("Unpause")
+        }
         return qsTr(model.name)
     }
 
@@ -42,6 +46,10 @@ Rectangle {
         if (model.action == "record-toggle") 
         {
             return recording.isActive ? "media-playback-stop" : "media-playback-start"
+        }
+        if (model.action == "record-pause") 
+        {
+            return recording.isPaused ? "media-playback-start" : "media-playback-pause"
         }
         return model.iconName
     }
@@ -113,7 +121,7 @@ Rectangle {
                 Kirigami.Icon {
                     Layout.leftMargin: 8
                     source: getButtonIcon(model)
-                    implicitWidth: 15
+                    implicitWidth: 13
                     Layout.alignment: Qt.AlignVCenter
                     color: '#ffffff'
                     opacity: getButtonEnabled(model) ? 1 : 0.6

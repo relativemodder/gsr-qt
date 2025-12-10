@@ -61,9 +61,15 @@ void DBusInterface::setActiveWindowFullscreen(bool isFullscreen) {
 
 void DBusInterface::setupRecordingListening() {
     auto cli = GSRCli::instance();
+
     connect(cli, &GSRCli::recordingChanged, this, [this] {
         emit this->recordingActiveChanged();
     });
+    
+    connect(cli, &GSRCli::recordingPausedChanged, this, [this] {
+        emit this->recordingPausedChanged();
+    });
+    
 }
 
 bool DBusInterface::recordingActive() const {
@@ -76,6 +82,16 @@ void DBusInterface::startRecording() {
 
 void DBusInterface::stopRecording() {
     GSRCli::instance()->stopRecording();
+}
+
+void DBusInterface::toggleRecordingPause()
+{
+    GSRCli::instance()->toggleRecordingPause();
+}
+
+bool DBusInterface::recordingPaused() const
+{
+    return GSRCli::instance()->isRecordingPaused();
 }
 
 QList<QString> DBusInterface::getCaptureOptions() {
@@ -92,6 +108,6 @@ QList<QString> DBusInterface::getCaptureOptions() {
         }
         cachedCaptureOptions.append(opt);
     }
-    
+
     return cachedCaptureOptions;
 }
