@@ -33,7 +33,15 @@ void GSRCli::startRecording()
     auto& settings = GSRSettings::instance();
 
     auto fileName = generateFileName();
-    auto firstStagePath = settings.get_recordOutputDirectory() + "/" + fileName;
+    auto outDir = settings.get_recordOutputDirectory();
+    auto firstStagePath = outDir + "/" + fileName;
+
+    if (!QDir(outDir).exists())
+    {
+        if (!QDir().mkpath(outDir)) {
+            NotificationService::instance()->notify("data-error", "Failed to create " + outDir + "directory.", NotificationType::ERROR);  
+        }
+    }
 
     GSRArgs argsBuilder;
     argsBuilder.setWindowTarget("screen");
@@ -50,7 +58,7 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::finished,
             this,
-            [this, fileName, firstStagePath, &settings](int code, QProcess::ExitStatus) {
+            [this, fileName, firstStagePath, &settings, outDir](int code, QProcess::ExitStatus) {
                 std::cerr << "[gsr] finished()\n";
                 this->m_recording = false;
                 emit recordingChanged();
@@ -65,7 +73,7 @@ void GSRCli::startRecording()
                 if (settings.get_recordCategorizeByTitle())
                 {
                     auto currentWindowTitle = ActiveWindow::instance()->info().title.replace('/', '_');
-                    auto categorizedDir = settings.get_recordOutputDirectory() + "/" + currentWindowTitle;
+                    auto categorizedDir = outDir + "/" + currentWindowTitle;
 
                     if (!QDir(categorizedDir).exists()) {
                         QDir().mkdir(categorizedDir);
@@ -92,7 +100,7 @@ void GSRCli::startRecording()
         {
             std::string gsr_error_content = stderr.split(':').last().trimmed().toStdString();
             std::string error_message = "Error saving recording: "+ gsr_error_content;
-            NotificationService::instance()->notify("data-error", QString::fromStdString(error_message), NotificationType::NORMAL);
+            NotificationService::instance()->notify("data-error", QString::fromStdString(error_message), NotificationType::ERROR);
         }
     });
 
@@ -100,6 +108,51 @@ void GSRCli::startRecording()
 
     m_recording = true;
     emit recordingChanged();
+}
+
+QList<GSRCaptureOption> GSRCli::getCaptureOptions() {
+    QStringList args;
+    args << "gpu-screen-recorder";
+    args << "--list-capture-options";
+
+    auto gcoProcess = new QProcess();
+    gcoProcess->start("/usr/bin/env", args);
+
+    gcoProcess->waitForFinished();
+
+    auto result = gcoProcess->exitCode();
+
+    auto stdout = gcoProcess->readAllStandardOutput();
+    auto stderr = gcoProcess->readAllStandardError();
+
+    QList<GSRCaptureOption> list = {};
+
+    gcoProcess->deleteLater();
+
+    if (result != 0) 
+    {
+        NotificationService::instance()->notify("data-error", "Failed to get capture options: " + stderr.trimmed(), NotificationType::ERROR);
+        return list;
+    }
+
+    for (QString line : stdout.split('\n')) 
+    {
+        if (line.trimmed().size() < 1) continue;
+
+        auto data = line.split('|');
+
+        GSRCaptureOption option = {};
+        option.name = data[0];
+
+        if (data.length() > 1)
+        {
+            option.resolution = data[1];
+        }
+
+        list.append(option);
+    }
+
+    return list;
 }
 
 QString GSRCli::generateFileName()

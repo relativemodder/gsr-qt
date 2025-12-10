@@ -3,6 +3,13 @@
 #include <QAction>
 #include <QProcess>
 #include <QString>
+#include <QList>
+#include <optional>
+
+struct GSRCaptureOption {
+    QString name;
+    std::optional<QString> resolution;
+};
 
 class GSRCli : public QObject 
 {
@@ -17,6 +24,8 @@ public:
     bool isRecording();
     void toggleRecording();
     QString generateFileName();
+
+    QList<GSRCaptureOption> getCaptureOptions();
 
 signals:
     void recordingChanged();

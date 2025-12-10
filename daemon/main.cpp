@@ -10,6 +10,7 @@
 #include "windowing/activewindow.h"
 #include <gsrsettings.h>
 #include "dbusinterface.h"
+#include "processes/gsrcli.h"
 
 int main(int argc, char *argv[])
 {
@@ -74,6 +75,11 @@ int main(int argc, char *argv[])
     }
 
     DBusInterface::instance()->setupRecordingListening();
+
+    for (auto option : GSRCli::instance()->getCaptureOptions()) 
+    {
+        std::cout << "Capture option: " << option.name.toStdString() << std::endl;
+    }
 
     Shortcuts::instance()->initGlobalActions();
 

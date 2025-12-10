@@ -18,7 +18,7 @@ Kirigami.Dialog {
         Item { Layout.minimumWidth: 500 }
 
         Label {
-            text: 'Output video directory:'
+            text: qsTr('Output video directory:')
         }
         RowLayout {
             Layout.fillWidth: true
@@ -26,20 +26,22 @@ Kirigami.Dialog {
                 id: outputVideoDirTF
                 Layout.fillWidth: true
                 text: settings.recordOutputDirectory
+                enabled: false
             }
             Button {
-                text: 'Save'
+                text: outputVideoDirTF.enabled ? qsTr('Save') : qsTr('Edit')
                 Layout.leftMargin: 5
                 onClicked: {
+                    outputVideoDirTF.enabled = !outputVideoDirTF.enabled
                     settings.recordOutputDirectory = outputVideoDirTF.text
                 }
             }
         }
 
         Switch {
-            text: 'Save video in a folder with the name of the game (X11 and KDE Plasma only)'
+            text: qsTr('Save video in a folder with the name of the game')
             leftPadding: 0
-            Layout.topMargin: 10
+            Layout.topMargin: 20
             checked: settings.recordCategorizeByTitle
             onClicked: settings.recordCategorizeByTitle = checked
         }
