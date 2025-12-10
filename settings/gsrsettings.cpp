@@ -12,6 +12,8 @@ GSRSettings::GSRSettings(QObject* parent)
     qDebug() << "Settings file path:" << m_settings.fileName();
 }
 
+
+// defaultOutputDirPath
 QString GSRSettings::calculateDefaultOutputDir() const {
     QString videosDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
 
@@ -65,4 +67,24 @@ void GSRSettings::resetOutputDir() {
         
         emit outputDirectoryChanged();
     }
+}
+
+
+// categorizeByTitle
+bool GSRSettings::getCategorizeByTitle() const {
+    return m_settings.value(CATEGORIZE_BY_TITLE_KEY, getDefaultCategorizeByTitle()).toBool();
+}
+
+void GSRSettings::setCategorizeByTitle(bool value) {
+    bool currentValue = getCategorizeByTitle();
+    if (currentValue != value) {
+        m_settings.setValue(CATEGORIZE_BY_TITLE_KEY, value);
+        m_settings.sync();
+        qDebug() << "Categorize by title set to:" << value;
+        emit categorizeByTitleChanged();
+    }
+}
+
+bool GSRSettings::getDefaultCategorizeByTitle() const {
+    return true;
 }

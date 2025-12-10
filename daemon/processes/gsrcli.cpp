@@ -5,8 +5,13 @@
 #include <QStringList>
 #include <iostream>
 #include <qcontainerfwd.h>
+#include <qcoreapplication.h>
+#include <qdir.h>
 #include <qprocess.h>
+#include <QDateTime>
 #include "../notificationservice.h"
+#include "../windowing/activewindow.h"
+#include <QFile>
 
 GSRCli::GSRCli(QObject *parent)
     : QObject{parent}
@@ -25,11 +30,14 @@ void GSRCli::startRecording()
         return;
     }
 
+    auto fileName = generateFileName();
+    auto firstStagePath = GSRSettings::instance().getOutputDir() + "/" + fileName;
+
     GSRArgs argsBuilder;
     argsBuilder.setWindowTarget("screen");
     argsBuilder.setFrameRate(60);
     argsBuilder.addAudioSource("default_output|default_input");
-    argsBuilder.setOutputFile(GSRSettings::instance().getOutputDir() + "/testvideo.mp4");
+    argsBuilder.setOutputFile(firstStagePath);
 
     QStringList args;
     args << "gpu-screen-recorder";
@@ -40,15 +48,34 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::finished,
             this,
-            [this](int code, QProcess::ExitStatus) {
+            [this, fileName, firstStagePath](int code, QProcess::ExitStatus) {
                 std::cerr << "[gsr] finished()\n";
                 this->m_recording = false;
                 emit recordingChanged();
 
-                if (code == 0) 
+                if (code != 0)
                 {
-                    NotificationService::instance()->notify("document-save", "Recording saved", NotificationType::NORMAL);
+                    return;
                 }
+
+                NotificationService::instance()->notify("document-save", "Recording saved", NotificationType::NORMAL);
+
+                if (GSRSettings::instance().getCategorizeByTitle())
+                {
+                    auto currentWindowTitle = ActiveWindow::instance()->info().title.replace('/', '_');
+                    auto categorizedDir = GSRSettings::instance().getOutputDir() + "/" + currentWindowTitle;
+
+                    if (!QDir(categorizedDir).exists()) {
+                        QDir().mkdir(categorizedDir);
+                    }
+
+                    auto categorizedPath = categorizedDir + "/" + fileName;
+
+                    std::cout << "Moving " << firstStagePath.toStdString() << " to " << categorizedPath.toStdString() << std::endl;
+
+                    QFile::rename(firstStagePath, categorizedPath);
+                }
+            
             });
     connect(recordProcess, &QProcess::readyReadStandardOutput,
     this, [this] {
@@ -57,7 +84,14 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::readyReadStandardError,
     this, [this] {
-        std::cerr << "recordProcess gsr stderr: " << recordProcess->readAllStandardError().toStdString();
+        auto stderr = recordProcess->readAllStandardError();
+        std::cerr << "recordProcess gsr stderr: " << stderr.toStdString();
+        if (stderr.contains("gsr error:")) 
+        {
+            std::string gsr_error_content = stderr.split(':').last().trimmed().toStdString();
+            std::string error_message = "Error saving recording: "+ gsr_error_content;
+            NotificationService::instance()->notify("data-error", QString::fromStdString(error_message), NotificationType::NORMAL);
+        }
     });
 
     NotificationService::instance()->notify("media-record", "Started recording", NotificationType::NORMAL);
@@ -70,7 +104,10 @@ QString GSRCli::generateFileName()
 {
     QString filenameBuilder;
     filenameBuilder.append("Video_");
+    filenameBuilder.append(QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss"));
+    filenameBuilder.append(".mp4");
     
+    return filenameBuilder;
 }
 
 void GSRCli::stopRecording()

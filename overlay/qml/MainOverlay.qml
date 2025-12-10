@@ -221,8 +221,7 @@ ApplicationWindow {
         Layout.maximumHeight: 120
 
         MouseArea {
-            id: activeWindowMouseArea
-            anchors.fill: parent
+            id: activeWindowMouseAreas
             hoverEnabled: true
             onEntered: {
                 activeWindowBackgroundRect.color = 'black'

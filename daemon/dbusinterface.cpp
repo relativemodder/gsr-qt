@@ -42,8 +42,6 @@ void DBusInterface::setActiveWindowTitle(QString title) {
     ActiveWindow::instance()->setActiveWindowInfo(info);
 
     activeWindowTitleChanged();
-
-    std::cout << "Set active window title to: " << title.toStdString() << std::endl;
 }
 
 QString DBusInterface::windowTitle() const {
@@ -61,8 +59,6 @@ void DBusInterface::setActiveWindowFullscreen(bool isFullscreen) {
     info.isFullscreen = isFullscreen;
 
     ActiveWindow::instance()->setActiveWindowInfo(info);
-
-    std::cout << "Set active window fullscreen to: " << (isFullscreen ? "true" : "false") << std::endl;
 }
 
 void DBusInterface::setupRecordingListening() {
