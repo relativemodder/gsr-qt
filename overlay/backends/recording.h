@@ -1,7 +1,9 @@
+#pragma once
 #include <QObject>
 #include <QQmlProperty>
+#include "backend.h"
 
-class RecordingBackend : public QObject 
+class RecordingBackend : public DBusBackend
 {
     Q_OBJECT
     QML_ELEMENT

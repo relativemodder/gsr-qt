@@ -1,13 +1,9 @@
 #include "backends/recording.h"
-#include "dbusinterface.h"
-#include <QDBusInterface>
 #include <QDBusReply>
-#include <iostream>
 #include <qdbuspendingcall.h>
-#include "backends/shutdownnotifier.h"
 
 RecordingBackend::RecordingBackend(QObject *parent)
-    : QObject{parent}
+    : DBusBackend{parent}
 {}
 
 RecordingBackend* RecordingBackend::instance()
@@ -16,55 +12,42 @@ RecordingBackend* RecordingBackend::instance()
     return &p;
 }
 
-bool RecordingBackend::recordingActive() 
+bool RecordingBackend::recordingActive()
 {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
-
-    auto active = iface.property("recordingActive");
+    auto active = getDBusInterface()->property("recordingActive");
 
     if (active.isValid()) {
         return active.toBool();
     }
 
-    std::cerr << "Failed to get recordingActive from daemon: " << qPrintable(connection->lastError().message()) << "\n";
+    logDBusError("recordingActive property");
     return false;
 }
 
-bool RecordingBackend::recordingPaused() 
+bool RecordingBackend::recordingPaused()
 {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
-
-    auto paused = iface.property("recordingPaused");
+    auto paused = getDBusInterface()->property("recordingPaused");
 
     if (paused.isValid()) {
         return paused.toBool();
     }
 
-    std::cerr << "Failed to get recordingPaused from daemon: " << qPrintable(connection->lastError().message()) << "\n";
+    logDBusError("recordingPaused property");
     return false;
 }
 
-void RecordingBackend::toggleRecording(bool state) 
+void RecordingBackend::toggleRecording(bool state)
 {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
-
     if (state) {
-        iface.asyncCall("startRecording");
-    }
-    else {
-        iface.asyncCall("stopRecording");
+        getDBusInterface()->asyncCall("startRecording");
+    } else {
+        getDBusInterface()->asyncCall("stopRecording");
     }
 }
 
-void RecordingBackend::togglePause() 
+void RecordingBackend::togglePause()
 {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
-
-    iface.asyncCall("toggleRecordingPause");
+    getDBusInterface()->asyncCall("toggleRecordingPause");
 }
 
 void RecordingBackend::subToChangesSignal()
@@ -93,16 +76,12 @@ void RecordingBackend::onRecordingPausedChanged() {
 }
 
 QList<QString> RecordingBackend::getCaptureOptions() {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
+    QDBusReply<QList<QString>> result = getDBusInterface()->call("getCaptureOptions");
 
-    QDBusReply<QList<QString>> result = iface.call("getCaptureOptions");
-    
     if (result.isValid()) {
         return result.value();
-    }
-    else {
-        std::cerr << "Failed to get capture options" << std::endl;
+    } else {
+        logDBusError("getCaptureOptions");
         return {};
     }
 }

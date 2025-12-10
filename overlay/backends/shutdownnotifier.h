@@ -10,14 +10,14 @@ public:
     explicit ShutdownNotifier(QObject *parent = nullptr);
     static ShutdownNotifier* instance();
 
-    Q_PROPERTY(bool omgImGonnaClose READ omgImGonnaClose NOTIFY startShutdownAnimation);
-    bool omgImGonnaClose() const;
+    Q_PROPERTY(bool isShuttingDown READ isShuttingDown NOTIFY startShutdownAnimation);
+    bool isShuttingDown() const;
 
 public slots:
     void intendedClose();
 
 signals:
-    void startShutdownAnimation(); 
+    void startShutdownAnimation();
 
 private:
     QTimer *m_shutdownTimer;

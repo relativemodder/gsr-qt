@@ -1,7 +1,9 @@
+#pragma once
 #include <QObject>
 #include <QQmlProperty>
+#include "backend.h"
 
-class ActiveWindow : public QObject 
+class ActiveWindow : public DBusBackend
 {
     Q_OBJECT
     QML_ELEMENT

@@ -25,6 +25,6 @@ ShutdownNotifier::ShutdownNotifier(QObject *parent) {
     globalShutdownTimer = m_shutdownTimer;
 }
 
-bool ShutdownNotifier::omgImGonnaClose() const {
+bool ShutdownNotifier::isShuttingDown() const {
     return m_isShuttingDown;
 }

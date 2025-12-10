@@ -59,6 +59,8 @@ qt_add_qml_module(${PROJECT_NAME}
         backends/activewindow.cpp
         backends/recording.h
         backends/recording.cpp
+        backends/backend.h
+        backends/backend.cpp
 
         dbusinterface.h
         dbusinterface.cpp

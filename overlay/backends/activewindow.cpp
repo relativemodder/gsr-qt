@@ -1,11 +1,8 @@
 #include "backends/activewindow.h"
-#include <QDBusInterface>
 #include <QDBusReply>
-#include <iostream>
-#include "dbusinterface.h"
 
 ActiveWindow::ActiveWindow(QObject *parent)
-    : QObject{parent}
+    : DBusBackend{parent}
 {}
 
 ActiveWindow* ActiveWindow::instance()
@@ -25,25 +22,22 @@ void ActiveWindow::setTitle(const QString& t) {
     }
 }
 
-void ActiveWindow::requestWindowTitle() 
+void ActiveWindow::requestWindowTitle()
 {
-    auto connection = DBusInterface::instance()->getConnection();
-    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
-
-    QDBusReply<QString> title = iface.call("getActiveWindowTitle");
+    QDBusReply<QString> title = getDBusInterface()->call("getActiveWindowTitle");
     if (title.isValid()) {
-        ActiveWindow::instance()->setTitle(title.value());
+        setTitle(title.value());
     } else {
-        std::cerr << "Failed to get active window title from daemon: " << qPrintable(connection->lastError().message()) << "\n";
+        logDBusError("getActiveWindowTitle");
     }
 }
 
-void ActiveWindow::onActiveWindowTitleChanged() 
+void ActiveWindow::onActiveWindowTitleChanged()
 {
     requestWindowTitle();
 }
 
-void ActiveWindow::subToChangesSignal() 
+void ActiveWindow::subToChangesSignal()
 {
     auto connection = DBusInterface::instance()->getConnection();
     connection->connect(
