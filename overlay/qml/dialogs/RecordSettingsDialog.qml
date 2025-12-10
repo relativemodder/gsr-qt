@@ -14,10 +14,67 @@ Kirigami.Dialog {
         policy: ScrollBar.AlwaysOn
     }
 
+    function outputToReadableText(output) 
+    {
+        if (output == "screen")
+        {
+            return "Focused monitor"
+        }
+        if (output == "portal")
+        {
+            return "Desktop Portal"
+        }
+        if (output == "region")
+        {
+            return "Rectangular area"
+        }
+        if (output.includes("|")) {
+            const data = output.split("|")
+            return "Monitor " + data[0] + " (" + data[1] + ")"
+        }
+
+        if (output && output.length > 0) {
+            const options = recording.getCaptureOptions()
+
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].startsWith(output + "|")) {
+                    const res = options[i].split("|")[1]
+                    return "Monitor " + output + " (" + res + ")"
+                }
+            }
+            
+            return "Monitor " + output
+        }
+
+        return "Unknown"
+    }
+
     ColumnLayout {
         Item { Layout.minimumWidth: 500 }
 
         Label {
+            text: qsTr('Capture method:')
+        }
+        ComboBox {
+            id: captureOptionsCombo
+            model: recording.getCaptureOptions()
+            currentValue: settings.recordCaptureOption
+            Layout.fillWidth: true
+
+            displayText: outputToReadableText(currentValue)
+
+            delegate: ItemDelegate {
+                text: outputToReadableText(modelData)
+                width: parent.width
+                onClicked: {
+                    settings.recordCaptureOption = modelData.split('|')[0]
+                }
+                required property string modelData
+            }
+        }
+
+        Label {
+            Layout.topMargin: 20
             text: qsTr('Output video directory:')
         }
         RowLayout {
@@ -37,6 +94,7 @@ Kirigami.Dialog {
                 }
             }
         }
+
 
         Switch {
             text: qsTr('Save video in a folder with the name of the game')

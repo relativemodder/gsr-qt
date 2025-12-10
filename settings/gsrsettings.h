@@ -24,6 +24,7 @@ class GSRSettings : public QObject {
     // Record settings
     SETTING_PROPERTY(QString, recordOutputDirectory, "record/output_directory", getDefaultOutputDir())
     SETTING_PROPERTY(bool, recordCategorizeByTitle, "record/categorize_by_title", true)
+    SETTING_PROPERTY(QString, recordCaptureOption, "record/capture_option", "screen")
     
 public:
     static GSRSettings& instance() {

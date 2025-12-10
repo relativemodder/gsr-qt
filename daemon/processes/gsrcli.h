@@ -26,6 +26,8 @@ public:
     QString generateFileName();
 
     QList<GSRCaptureOption> getCaptureOptions();
+    QString selectRectScreenArea();
+    QString captureOptionToReadable(QString captureOption);
 
 signals:
     void recordingChanged();

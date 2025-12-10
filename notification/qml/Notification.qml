@@ -113,13 +113,13 @@ Window {
             target: highlightBar
             property: "width"
             to: 3
-            duration: 160
+            duration: 100
             easing.type: Easing.InOutQuad
         }
 
         ParallelAnimation {
-            NumberAnimation { target: icon; property: "opacity"; to: 1; duration: 200 }
-            NumberAnimation { target: notificationText; property: "opacity"; to: 1; duration: 200 }
+            NumberAnimation { target: icon; property: "opacity"; to: 1; duration: 150 }
+            NumberAnimation { target: notificationText; property: "opacity"; to: 1; duration: 150 }
         }
 
         PauseAnimation { duration: notificationText.text.length * readSpeed }
@@ -132,8 +132,8 @@ Window {
         id: hideSequence
 
         ParallelAnimation {
-            NumberAnimation { target: icon; property: "opacity"; to: 0; duration: 200 }
-            NumberAnimation { target: notificationText; property: "opacity"; to: 0; duration: 200 }
+            NumberAnimation { target: icon; property: "opacity"; to: 0; duration: 150 }
+            NumberAnimation { target: notificationText; property: "opacity"; to: 0; duration: 150 }
         }
 
         NumberAnimation {

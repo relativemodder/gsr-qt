@@ -19,22 +19,14 @@ OverlayProcess* OverlayProcess::instance()
     return &p;
 }
 
-void OverlayProcess::toggleShow()
+bool OverlayProcess::isActive() 
 {
-    if (lockToggleShow)
-        return;
+    return process != nullptr;
+}
 
-    lockToggleShow = true;
-    QTimer::singleShot(600, this, [this]() {
-        lockToggleShow = false;
-    });
-
-    if (!process) {
-        startOverlay();
-        return;
-    }
-
-    if (alreadyTerminating) {
+void OverlayProcess::shutdownOverlay(bool hardkill) 
+{
+    if (alreadyTerminating || hardkill) {
         std::cerr << "hard kill\n";
         process->kill();   // immediate SIGKILL
         return;
@@ -52,6 +44,24 @@ void OverlayProcess::toggleShow()
             process->kill();
         }
     });
+}
+
+void OverlayProcess::toggleShow()
+{
+    if (lockToggleShow)
+        return;
+
+    lockToggleShow = true;
+    QTimer::singleShot(600, this, [this]() {
+        lockToggleShow = false;
+    });
+
+    if (!process) {
+        startOverlay();
+        return;
+    }
+
+    shutdownOverlay();
 }
 
 

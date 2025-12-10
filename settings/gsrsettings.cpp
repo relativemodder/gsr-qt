@@ -20,6 +20,7 @@ void GSRSettings::initializeDefaults() {
     // Record
     writeDefault("record/output_directory", getDefaultOutputDir());
     writeDefault("record/categorize_by_title", true);
+    writeDefault("record/capture_option", "screen");
 
     m_settings.sync();
 }

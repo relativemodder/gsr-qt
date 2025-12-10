@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include "../notificationservice.h"
 #include "../windowing/activewindow.h"
+#include "processes/overlayprocess.h"
 #include <QFile>
 
 GSRCli::GSRCli(QObject *parent)
@@ -43,11 +44,34 @@ void GSRCli::startRecording()
         }
     }
 
+    auto captureOption = settings.get_recordCaptureOption();
+
     GSRArgs argsBuilder;
-    argsBuilder.setWindowTarget("screen");
+    argsBuilder.setWindowTarget(captureOption);
     argsBuilder.setFrameRate(60);
     argsBuilder.addAudioSource("default_output|default_input");
     argsBuilder.setOutputFile(firstStagePath);
+
+    if (captureOption == "region") 
+    {
+        if (OverlayProcess::instance()->isActive()) {
+            OverlayProcess::instance()->shutdownOverlay();
+        }
+        auto regionResult = selectRectScreenArea();
+        if (regionResult.isEmpty()) 
+        {
+            return;
+        }
+
+        argsBuilder.setCaptureRegion(regionResult);
+    }
+
+    if (captureOption == "portal")
+    {
+        if (OverlayProcess::instance()->isActive()) {
+            OverlayProcess::instance()->shutdownOverlay();
+        }
+    }
 
     QStringList args;
     args << "gpu-screen-recorder";
@@ -58,7 +82,7 @@ void GSRCli::startRecording()
 
     connect(recordProcess, &QProcess::finished,
             this,
-            [this, fileName, firstStagePath, &settings, outDir](int code, QProcess::ExitStatus) {
+            [this, fileName, firstStagePath, &settings, outDir, captureOption](int code, QProcess::ExitStatus) {
                 std::cerr << "[gsr] finished()\n";
                 this->m_recording = false;
                 emit recordingChanged();
@@ -68,7 +92,7 @@ void GSRCli::startRecording()
                     return;
                 }
 
-                NotificationService::instance()->notify("document-save", "Recording saved", NotificationType::NORMAL);
+                NotificationService::instance()->notify("document-save", "Saved recording from" + captureOptionToReadable(captureOption), NotificationType::NORMAL);
 
                 if (settings.get_recordCategorizeByTitle())
                 {
@@ -104,13 +128,74 @@ void GSRCli::startRecording()
         }
     });
 
-    NotificationService::instance()->notify("media-record", "Started recording", NotificationType::NORMAL);
+    NotificationService::instance()->notify(
+        "media-record", 
+        "Started recording" + captureOptionToReadable(captureOption), 
+        NotificationType::NORMAL
+    );
 
     m_recording = true;
     emit recordingChanged();
 }
 
-QList<GSRCaptureOption> GSRCli::getCaptureOptions() {
+QString GSRCli::captureOptionToReadable(QString captureOption) 
+{
+    QString whatDoWeRecord;
+
+    if (captureOption == "screen")
+    {
+        whatDoWeRecord = " this monitor";
+    }
+    else if (captureOption == "region")
+    {
+        whatDoWeRecord = " the selection";
+    }
+    else if (captureOption == "portal")
+    {
+        whatDoWeRecord = " Desktop Portal contents";
+    }
+    else if (captureOption.contains('-'))
+    {
+        whatDoWeRecord = " monitor " + captureOption;
+    }
+
+    return whatDoWeRecord;
+}
+
+QString GSRCli::selectRectScreenArea() 
+{
+    auto env = QProcessEnvironment::systemEnvironment();
+
+    QStringList args;
+    args << "slop";
+
+    auto srscProcess = new QProcess(this);
+    srscProcess->start("/usr/bin/env", args);
+
+    NotificationService::instance()->notify("select", "Select an area", NotificationType::NORMAL);
+
+    srscProcess->waitForFinished(90000);
+
+    std::cout << "done" << std::endl;
+
+    auto result = srscProcess->exitCode();
+
+    auto stdout = srscProcess->readAllStandardOutput();
+    auto stderr = srscProcess->readAllStandardError();
+
+    if (result != 0) 
+    {
+        NotificationService::instance()->notify(
+            "data-error", "Failed to select area: " + stderr.trimmed(), 
+            NotificationType::ERROR);
+        return "";
+    }
+
+    return stdout.trimmed();
+}
+
+QList<GSRCaptureOption> GSRCli::getCaptureOptions() 
+{
     QStringList args;
     args << "gpu-screen-recorder";
     args << "--list-capture-options";
@@ -125,7 +210,7 @@ QList<GSRCaptureOption> GSRCli::getCaptureOptions() {
     auto stdout = gcoProcess->readAllStandardOutput();
     auto stderr = gcoProcess->readAllStandardError();
 
-    QList<GSRCaptureOption> list = {};
+    QList<GSRCaptureOption> list = {{"screen"}};
 
     gcoProcess->deleteLater();
 

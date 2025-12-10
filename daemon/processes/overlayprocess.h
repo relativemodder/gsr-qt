@@ -15,10 +15,11 @@ public:
     void toggleShow();
     QList<pid_t> findOverlayProcesses();
     void overkill();
-
-private:
+    bool isActive();
+    void shutdownOverlay(bool hardkill = false);
     void startOverlay();
 
+private:
     QProcess* process = nullptr;
     bool alreadyTerminating = false;
     bool lockToggleShow = false;

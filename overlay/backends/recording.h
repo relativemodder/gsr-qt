@@ -19,4 +19,6 @@ signals:
 public slots:
     void toggleRecording(bool state);
     void onRecordingActiveChanged();
+
+    QList<QString> getCaptureOptions();
 };

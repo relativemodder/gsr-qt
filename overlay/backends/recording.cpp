@@ -36,10 +36,10 @@ void RecordingBackend::toggleRecording(bool state)
     QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
 
     if (state) {
-        iface.call("startRecording");
+        iface.asyncCall("startRecording");
     }
     else {
-        iface.call("stopRecording");
+        iface.asyncCall("stopRecording");
     }
 }
 
@@ -56,4 +56,19 @@ void RecordingBackend::subToChangesSignal()
 
 void RecordingBackend::onRecordingActiveChanged() {
     emit recordingActiveChanged();
+}
+
+QList<QString> RecordingBackend::getCaptureOptions() {
+    auto connection = DBusInterface::instance()->getConnection();
+    QDBusInterface iface(APP_ID, "/", APP_ID, *connection);
+
+    QDBusReply<QList<QString>> result = iface.call("getCaptureOptions");
+    
+    if (result.isValid()) {
+        return result.value();
+    }
+    else {
+        std::cerr << "Failed to get capture options" << std::endl;
+        return {};
+    }
 }

@@ -17,8 +17,8 @@ public:
     static NotificationService* instance();
 
     void notify(QString iconName, QString text, NotificationType notificationType);
+    void showPlasmaOSD(QString icon, QString text);
 
 private:
-    void showPlasmaOSD(QString icon, QString text);
     void showOwnNotification(QString icon, QString text, NotificationType notificationType);
 };

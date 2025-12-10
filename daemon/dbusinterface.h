@@ -4,6 +4,7 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QObject>
+#include <QList>
 #include "processes/gsrcli.h"
 
 class DBusInterface : public QObject, protected QDBusContext
@@ -38,6 +39,8 @@ public slots:
 
     void startRecording();
     void stopRecording();
+
+    QList<QString> getCaptureOptions();
 
 signals:
     void activeWindowTitleChanged();
