@@ -11,7 +11,11 @@ Not licensed yet, but I guess that it needs to be GPL v3, as the original projec
 
 **GSR Qt is available in two modes:**
 - Wayland (layer-shell)
-- X11 (not implemented correctly yet) (and also this mode needs to be enabled automatically when X11 full-screen game is in focus)
+- X11 (not implemented correctly yet)
+
+
+## Why do my keyboard presses don't work when I'm in game?
+The overlay has to fall through your presses. If it enables the interactivity while the game is in fullscreen mode, there's a high chance that it will minimize. Don't worry, global shortcuts like Alt+Z and Alt+F9 still work, it's just the overlay UI in-game.
 
 
 ## How to build
@@ -46,6 +50,3 @@ killall -s 10 gsr-qt-daemon-service # signal way
 
 gsr-qt-daemon-service # it just sends the signal
 ```
-
-## Why do my keyboard presses don't work when I'm in game?
-The overlay has to fall through your presses. If it enables the interactivity while the game is in fullscreen mode, there's a high chance that it will minimize. Don't worry, global shortcuts like Alt+Z and Alt+F9 still work, it's just the overlay UI in-game.

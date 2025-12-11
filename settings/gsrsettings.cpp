@@ -17,8 +17,8 @@ void GSRSettings::initializeDefaults() {
         }
     };
 
-    // General
-    writeDefault("general/interactivity_warning_shown", false);
+    // overlay
+    writeDefault("overlay/interactivity_warning_shown", false);
 
     // Record
     writeDefault("record/output_directory", getDefaultOutputDir());

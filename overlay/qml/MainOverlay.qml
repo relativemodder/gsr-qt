@@ -299,27 +299,28 @@ ApplicationWindow {
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         Layout.maximumHeight: 120
-        Layout.minimumWidth: 700
+        Layout.minimumWidth: 1000
 
         Kirigami.InlineMessage {
             id: fsWarningMessage
             visible: keyboardInteractivityString == "none" && !settings.interactivityWarningShown
-            text: qsTr("Warning: you're in fullscreen game/app. The keyboard will not work in the overlay window and key presses will fall through.")
+            text: qsTr('Warning: you\'re in fullscreen game/app. The keyboard will not work in the overlay window and key presses will fall through. <a href="https://github.com/relativemodder/gsr-qt?tab=readme-ov-file#why-do-my-keyboard-presses-dont-work-when-im-in-game">Why?</a>')
             type: Kirigami.MessageType.Warning
             Layout.fillWidth: true
-            Layout.minimumWidth: 700
+            Layout.minimumWidth: 900
+            showCloseButton: true
 
-            actions: [
-                Kirigami.Action {
-                    text: qsTr("Why?")
-                },
-                Kirigami.Action {
-                    text: qsTr("OK, got it")
-                    icon.name: "dialog-cancel"
-
-                    onTriggered: settings.interactivityWarningShown = true
+            onVisibleChanged: {
+                if (visible) {
+                    return;
                 }
-            ]
+                settings.interactivityWarningShown = true
+            }
+
+            onLinkActivated: {
+                Qt.openUrlExternally(link)
+                shutdownNotifier.intendedClose();
+            }
         }
     }
 
@@ -384,6 +385,14 @@ ApplicationWindow {
                 property: "opacity"
                 to: 0
                 duration: 300
+                easing.type: Easing.OutQuad
+            }
+
+            NumberAnimation {
+                target: fsWarningTextContainer
+                property: "opacity"
+                to: 0
+                duration: 100
                 easing.type: Easing.OutQuad
             }
 
