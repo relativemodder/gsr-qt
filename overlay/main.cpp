@@ -20,6 +20,7 @@
 #include "backends/activewindow.h"
 #include "backends/recording.h"
 #include <LayerShellQt/window.h>
+#include <QCommandLineParser>
 
 void termination_signal_handler(int signum) {
     if (globalShutdownTimer) {
@@ -46,6 +47,21 @@ void install_signal_handler() {
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription("GSR Qt Overlay");
+    parser.addHelpOption();
+
+    QCommandLineOption keyboardInteractivityOpt("kbint", "Keyboard interactivity", "on-demand|exclusive|none", "on-demand");
+    QCommandLineOption layerOpt("layer", "Compositor's layer", "top|overlay", "top");
+
+    parser.addOption(keyboardInteractivityOpt);
+    parser.addOption(layerOpt);
+
+    parser.process(app);
+
+    QString keyboardInteractivity = parser.value(keyboardInteractivityOpt);
+    QString overlayLayer = parser.value(layerOpt);
 
     auto connection = QDBusConnection::sessionBus();
 
@@ -81,6 +97,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("activeWindow"), ActiveWindow::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("recording"), RecordingBackend::instance());
     engine.rootContext()->setContextProperty(QStringLiteral("settings"), &GSRSettings::instance());
+    engine.rootContext()->setContextProperty(QStringLiteral("keyboardInteractivityString"), keyboardInteractivity);
+    engine.rootContext()->setContextProperty(QStringLiteral("overlayLayerString"), overlayLayer);
 
     std::cout << "Context properties are set\n";
 

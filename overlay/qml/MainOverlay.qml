@@ -20,9 +20,32 @@ ApplicationWindow {
     visible: false
     title: 'GPU Screen Recorder Overlay'
 
+    function getKeyboardInteractivity(kbintString)
+    {
+        if (kbintString == "on-demand")
+        {
+            return LayerShell.Window.KeyboardInteractivityOnDemand
+        }
+        if (kbintString == "none")
+        {
+            return LayerShell.Window.KeyboardInteractivityNone
+        }
+        return LayerShell.Window.KeyboardInteractivityExclusive
+    }
+
+    function getOverlayLayer(layerString)
+    {
+        if (layerString == "overlay")
+        {
+            return LayerShell.Window.LayerOverlay
+        }
+        return LayerShell.Window.LayerTop
+    }
+
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop
-    LayerShell.Window.layer: LayerShell.Window.LayerTop
+    LayerShell.Window.layer: getOverlayLayer(overlayLayerString)
     LayerShell.Window.exclusionZone: -1
+    LayerShell.Window.keyboardInteractivity: getKeyboardInteractivity(keyboardInteractivityString)
 
     // Submenu state management
     QtObject {
@@ -265,6 +288,38 @@ ApplicationWindow {
             font.pixelSize: 20
             leftPadding: 40
             rightPadding: 40
+        }
+    }
+
+    RowLayout {
+        id: fsWarningTextContainer
+        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignHCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        anchors.horizontalCenter: parent.horizontalCenter
+        Layout.maximumHeight: 120
+        Layout.minimumWidth: 700
+
+        Kirigami.InlineMessage {
+            id: fsWarningMessage
+            visible: keyboardInteractivityString == "none" && !settings.interactivityWarningShown
+            text: qsTr("Warning: you're in fullscreen game/app. The keyboard will not work in the overlay window and key presses will fall through.")
+            type: Kirigami.MessageType.Warning
+            Layout.fillWidth: true
+            Layout.minimumWidth: 700
+
+            actions: [
+                Kirigami.Action {
+                    text: qsTr("Why?")
+                },
+                Kirigami.Action {
+                    text: qsTr("OK, got it")
+                    icon.name: "dialog-cancel"
+
+                    onTriggered: settings.interactivityWarningShown = true
+                }
+            ]
         }
     }
 

@@ -17,6 +17,9 @@ void GSRSettings::initializeDefaults() {
         }
     };
 
+    // General
+    writeDefault("general/interactivity_warning_shown", false);
+
     // Record
     writeDefault("record/output_directory", getDefaultOutputDir());
     writeDefault("record/categorize_by_title", true);

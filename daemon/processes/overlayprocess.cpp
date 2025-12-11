@@ -77,6 +77,9 @@ void OverlayProcess::startOverlay()
         }
     }
 
+    QStringList args;
+    args << "gsr-qt-overlay";
+
     process = new QProcess(this);
     alreadyTerminating = false;
 
@@ -87,11 +90,17 @@ void OverlayProcess::startOverlay()
     bool isFsInDE = ActiveWindow::instance()->info().isFullscreen;
     bool isHyprland = (env.value("XDG_SESSION_DESKTOP") == "Hyprland");
 
-    bool useXcb = ((isX11Fullscreen || isFsInDE) && !isHyprland);
+    //bool useXcb = ((isX11Fullscreen || isFsInDE) && !isHyprland);
+//
+    //if (useXcb) 
+    //{
+    //    env.insert("QT_QPA_PLATFORM", "xcb");
+    //}
 
-    if (useXcb) 
+    if (isFsInDE)
     {
-        env.insert("QT_QPA_PLATFORM", "xcb");
+        args << "--kbint" << "none";
+        args << "--layer" << "overlay";
     }
 
     process->setProcessEnvironment(env);
@@ -114,7 +123,7 @@ void OverlayProcess::startOverlay()
             });
 
 
-    process->start("/usr/bin/env", { "gsr-qt-overlay" });
+    process->start("/usr/bin/env", args);
 
     if (!process->waitForStarted(100)) {
         std::cerr << "[overlay] Failed to start overlay\n";

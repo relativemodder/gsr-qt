@@ -46,3 +46,6 @@ killall -s 10 gsr-qt-daemon-service # signal way
 
 gsr-qt-daemon-service # it just sends the signal
 ```
+
+## Why do my keyboard presses don't work when I'm in game?
+The overlay has to fall through your presses. If it enables the interactivity while the game is in fullscreen mode, there's a high chance that it will minimize. Don't worry, global shortcuts like Alt+Z and Alt+F9 still work, it's just the overlay UI in-game.

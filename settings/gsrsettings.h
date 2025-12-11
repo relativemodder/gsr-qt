@@ -21,6 +21,9 @@ private: \
 class GSRSettings : public QObject {
     Q_OBJECT
 
+    // General settings
+    SETTING_PROPERTY(bool, interactivityWarningShown, "general/interactivity_warning_shown", false)
+
     // Record settings
     SETTING_PROPERTY(QString, recordOutputDirectory, "record/output_directory", getDefaultOutputDir())
     SETTING_PROPERTY(bool, recordCategorizeByTitle, "record/categorize_by_title", true)
